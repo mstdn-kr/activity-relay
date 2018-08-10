@@ -7,6 +7,8 @@ name = "pypi"
 aiohttp = "*"
 asyncio-irc = "*"
 pycrypto = "*"
+simplejson = "*"
+pyyaml = "*"
 
 [dev-packages]
 
