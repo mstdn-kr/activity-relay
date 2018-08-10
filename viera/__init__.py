@@ -20,3 +20,5 @@ app = aiohttp.web.Application()
 
 from . import database
 from . import actor
+from . import webfinger
+
