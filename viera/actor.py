@@ -30,12 +30,14 @@ async def actor(request):
         "inbox": "https://{}/inbox".format(request.host),
         "name": "Viera",
         "type": "Application",
+        "id": "https://{}/actor".format(request.host),
         "publicKey": {
             "id": "https://{}/actor#main-key".format(request.host),
             "owner": "https://{}/actor".format(request.host),
             "publicKeyPem": DATABASE["actorKeys"]["publicKey"]
         },
-        "summary": "Viera, the bot"
+        "summary": "Viera, the bot",
+        "preferredUsername": "viera"
     }
     return aiohttp.web.json_response(data)
 
