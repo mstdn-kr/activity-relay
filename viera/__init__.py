@@ -15,7 +15,12 @@ def load_config():
 CONFIG = load_config()
 
 
-app = aiohttp.web.Application()
+from .http_signatures import http_signatures_middleware
+
+
+app = aiohttp.web.Application(middlewares=[
+    http_signatures_middleware
+])
 
 
 from . import database

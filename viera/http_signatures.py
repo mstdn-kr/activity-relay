@@ -1,0 +1,92 @@
+import aiohttp
+import aiohttp.web
+import base64
+import logging
+
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA, SHA256, SHA512
+from Crypto.Signature import PKCS1_v1_5
+
+from .remote_actor import fetch_actor
+
+
+HASHES = {
+    'sha1': SHA,
+    'sha256': SHA256,
+    'sha512': SHA512
+}
+
+
+def split_signature(sig):
+    default = {"headers": "date"}
+
+    sig = sig.strip().split(',')
+
+    for chunk in sig:
+        k, _, v = chunk.partition('=')
+        v = v.strip('\"')
+        default[k] = v
+
+    default['headers'] = default['headers'].split()
+    return default
+
+
+def build_signing_string(headers, used_headers):
+    return '\n'.join(map(lambda x: ': '.join([x, headers[x]]), used_headers))
+
+
+async def fetch_actor_key(actor):
+    actor_data = await fetch_actor(actor)
+
+    if 'publicKey' not in actor_data:
+         return None
+
+    if 'publicKeyPem' not in actor_data['publicKey']:
+         return None
+
+    return RSA.importKey(actor_data['publicKey']['publicKeyPem'])
+
+
+async def validate(actor, request):
+    pubkey = await fetch_actor_key(actor)
+    logging.debug('actor key: %r', pubkey)
+
+    headers = request.headers.copy()
+    headers['(request-target)'] = ' '.join([request.method.lower(), request.path])
+
+    sig = split_signature(headers['signature'])
+    logging.debug('sigdata: %r', sig)
+
+    sigstring = build_signing_string(headers, sig['headers'])
+    logging.debug('sigstring: %r', sigstring)
+
+    sign_alg, _, hash_alg = sig['algorithm'].partition('-')
+    logging.debug('sign alg: %r, hash alg: %r', sign_alg, hash_alg)
+
+    sigdata = base64.b64decode(sig['signature'])
+
+    pkcs = PKCS1_v1_5.new(pubkey)
+    h = HASHES[hash_alg].new()
+    h.update(sigstring.encode('ascii'))
+    result = pkcs.verify(h, sigdata)
+
+    logging.debug('validates? %r', result)
+    return result
+
+
+async def http_signatures_middleware(app, handler):
+    async def http_signatures_handler(request):
+        if 'signature' in request.headers:
+            data = await request.json()
+            if 'actor' not in data:
+                raise aiohttp.web.HTTPUnauthorized(body='signature check failed, no actor in message')
+
+            actor = data["actor"]
+            if not (await validate(actor, request)):
+                raise aiohttp.web.HTTPUnauthorized(body='signature check failed, signature did not match key')
+
+            return (await handler(request))
+
+        return (await handler(request))
+
+    return http_signatures_handler
