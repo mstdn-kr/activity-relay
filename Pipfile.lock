@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5129d2cc073ad3de87f33a17d3e40a3a1776b7bbfc28b63c57b67dc1756f7080"
+            "sha256": "a63674d7f94dff5b5a47955814c7a18d6d4e0625afc69ff5152b8fa42fe10a43"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -45,12 +45,25 @@
             "markers": "python_version >= '3.5.3'",
             "version": "==3.0.0"
         },
+        "asyncio-irc": {
+            "hashes": [
+                "sha256:65b5b74c1795ea1be61e68cfa67fd59019abafca86cd2ba5684da04573554dbc"
+            ],
+            "index": "pypi",
+            "version": "==0.2.1"
+        },
         "attrs": {
             "hashes": [
                 "sha256:4b90b09eeeb9b88c35bc642cbac057e45a5fd85367b985bd2809c62b7b939265",
                 "sha256:e0d0eb91441a3b53dab4d9b743eafc1ac44476296a2053b6ca3af0b139faf87b"
             ],
             "version": "==18.1.0"
+        },
+        "blinker": {
+            "hashes": [
+                "sha256:471aee25f3992bd325afa3772f1063dbdbbca947a041b8b89466dc00d606f8b6"
+            ],
+            "version": "==1.4"
         },
         "chardet": {
             "hashes": [
@@ -90,6 +103,13 @@
             ],
             "markers": "python_version >= '3.4.1'",
             "version": "==4.3.1"
+        },
+        "pycrypto": {
+            "hashes": [
+                "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"
+            ],
+            "index": "pypi",
+            "version": "==2.6.1"
         },
         "yarl": {
             "hashes": [
