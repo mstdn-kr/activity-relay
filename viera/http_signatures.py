@@ -32,7 +32,28 @@ def split_signature(sig):
 
 
 def build_signing_string(headers, used_headers):
-    return '\n'.join(map(lambda x: ': '.join([x, headers[x]]), used_headers))
+    return '\n'.join(map(lambda x: ': '.join([x.lower(), headers[x]]), used_headers))
+
+
+def sign_headers(headers, key, key_id):
+    used_headers = headers.keys()
+    sig = {
+        'keyId': key_id,
+        'algorithm': 'rsa-sha256',
+        'headers': ' '.join(used_headers)
+    }
+    sigstring = build_signing_string(headers, used_headers)
+
+    pkcs = PKCS1_v1_5.new(key)
+    h = SHA256.new()
+    h.update(sigstring.encode('ascii'))
+    sigdata = pkcs.sign(h)
+
+    sigdata = base64.b64encode(sigdata)
+    sig['signature'] = sigdata.decode('ascii')
+
+    chunks = ['{}="{}"'.format(k, v) for k, v in sig.items()]
+    return ','.join(chunks)
 
 
 async def fetch_actor_key(actor):
