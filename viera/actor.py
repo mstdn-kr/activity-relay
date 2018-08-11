@@ -118,7 +118,7 @@ processors = {
 
 
 async def inbox(request):
-    data = await request.json(content_type=None)
+    data = await request.json()
 
     if 'actor' not in data or not request['validated']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')

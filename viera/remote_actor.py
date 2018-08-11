@@ -9,6 +9,6 @@ async def fetch_actor(uri, force=False):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(uri, headers={'Accept': 'application/activity+json'}) as resp:
-            ACTORS[uri] = (await resp.json())
+            ACTORS[uri] = (await resp.json(content_type=None))
             DATABASE["actors"] = ACTORS
             return ACTORS[uri]
