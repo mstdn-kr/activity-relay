@@ -57,3 +57,7 @@ def fetch_auth(account):
         return DATABASE["auths"][account]
 
     return None
+
+
+def drop_auth(account):
+    DATABASE["auths"].pop(account, None)

@@ -7,7 +7,7 @@ from blinker import signal
 from . import CONFIG
 from .irc_envelope import RFC1459Message
 
-from .authreqs import new_auth_req, set_irc_bot, check_auth, fetch_auth
+from .authreqs import new_auth_req, set_irc_bot, check_auth, fetch_auth, drop_auth
 IRC_CONFIG = CONFIG.get('irc', {})
 
 # SASL_PAYLOAD = base64.b64encode(b'\x00'.join([IRC_CONFIG['sasl_username'], IRC_CONFIG['sasl_username'], IRC_CONFIG['sasl_password']]))
@@ -111,6 +111,10 @@ class IRCProtocol(asyncio.Protocol):
             self.voice(nickname)
         elif action == 'invite':
             self.invite(nickname)
+        elif action == 'drop':
+            data = fetch_auth(account)
+            drop_auth(account)
+            self.say(nickname, "The association of \x02{0}\x02 with \x02{1}\x02 has been dropped.".format(account, data))
         elif 'whois' in action:
             self.whois(nickname, action['whois'], account)
 
@@ -148,7 +152,7 @@ class IRCProtocol(asyncio.Protocol):
         source_nick = message.source.split('!')[0]
         if message.params[1] == 'auth':
             self.fetch_account_whox(message)
-        elif message.params[1] in ('voice', 'invite'):
+        elif message.params[1] in ('voice', 'invite', 'drop'):
             self.set_pending_action(source_nick, message.params[1])
             self.fetch_account_whox(message)
 
