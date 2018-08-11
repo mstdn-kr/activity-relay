@@ -118,7 +118,10 @@ processors = {
 
 
 async def inbox(request):
-    data = await request.json()
+    data = await request.json(content_type=None)
+
+    if 'actor' not in data or not request['validated']:
+        raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
 
     actor = await fetch_actor(data["actor"])
     actor_uri = 'https://{}/actor'.format(request.host)

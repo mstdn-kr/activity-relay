@@ -91,14 +91,18 @@ async def validate(actor, request):
     h.update(sigstring.encode('ascii'))
     result = pkcs.verify(h, sigdata)
 
+    request['validated'] = result
+
     logging.debug('validates? %r', result)
     return result
 
 
 async def http_signatures_middleware(app, handler):
     async def http_signatures_handler(request):
+        request['validated'] = False
+
         if 'signature' in request.headers:
-            data = await request.json()
+            data = await request.json(content_type=None)
             if 'actor' not in data:
                 raise aiohttp.web.HTTPUnauthorized(body='signature check failed, no actor in message')
 
