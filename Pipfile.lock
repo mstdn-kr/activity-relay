@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "18bbb3d2a3de6c69514d095176966458dd6b98b1d4834cee00c67aba2af5af8f"
+            "sha256": "7d43dd71bd5f6ab7a5e47465e091d518de798e3bc2f94b576243a38613253a4e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -45,13 +45,6 @@
             "markers": "python_version >= '3.5.3'",
             "version": "==3.0.0"
         },
-        "asyncio-irc": {
-            "hashes": [
-                "sha256:65b5b74c1795ea1be61e68cfa67fd59019abafca86cd2ba5684da04573554dbc"
-            ],
-            "index": "pypi",
-            "version": "==0.2.1"
-        },
         "attrs": {
             "hashes": [
                 "sha256:4b90b09eeeb9b88c35bc642cbac057e45a5fd85367b985bd2809c62b7b939265",
@@ -63,6 +56,7 @@
             "hashes": [
                 "sha256:471aee25f3992bd325afa3772f1063dbdbbca947a041b8b89466dc00d606f8b6"
             ],
+            "index": "pypi",
             "version": "==1.4"
         },
         "chardet": {
