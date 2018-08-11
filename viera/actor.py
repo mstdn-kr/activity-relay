@@ -49,7 +49,8 @@ async def actor(request):
             "publicKeyPem": DATABASE["actorKeys"]["publicKey"]
         },
         "summary": "Viera, the bot",
-        "preferredUsername": "viera"
+        "preferredUsername": "viera",
+        "url": "https://{}/actor".format(request.host)
     }
     return aiohttp.web.json_response(data)
 
