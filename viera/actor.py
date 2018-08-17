@@ -85,16 +85,25 @@ def strip_html(data):
     return cgi.escape(no_tags)
 
 
-from .authreqs import check_reqs
+from .authreqs import check_reqs, get_irc_bot
 
 
 async def handle_create(actor, data, request):
+    # for now, we only care about Notes
+    if data['object']['type'] != Note:
+        return
+
+    # strip the HTML if present
     content = strip_html(data['object']['content']).split()
 
     # check if the message is an authorization token for linking identities together
     # if it is, then it's not a message we want to relay to IRC.
     if check_reqs(content, actor):
         return
+
+    # fetch our IRC bot
+    bot = get_irc_bot()
+    bot.relay_message(actor, data['object'], content)
 
 
 async def handle_follow(actor, data, request):

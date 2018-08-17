@@ -204,6 +204,18 @@ class IRCProtocol(asyncio.Protocol):
         logging.debug('> %r', m)
         self.transport.write(m.to_message().encode('utf-8') + b'\r\n')
 
+    def relay_message(self, actor, obj, content):
+        fmt = "\x02{name}\x02: {content} [{url}]"
+
+        msgcontent = content[0:256]
+        if len(content) > 256:
+            msgcontent += '...'
+
+        message = fmt.format(name=actor['name'], content=msgcontent, url=obj['id'])
+        target = ','.join(IRC_CONFIG['relay_channels'])
+
+        self.say(target, message)
+
 
 async def irc_bot():
     loop = asyncio.get_event_loop()
