@@ -43,11 +43,18 @@ def new_auth_req(irc_nickname, irc_account):
     return authid
 
 
+# XXX - utter hackjob
 def set_irc_bot(bot):
     global IRC_BOT
 
     IRC_BOT = bot
     logging.debug("SET IRC BOT TO: %r", bot)
+
+
+def get_irc_bot():
+    global IRC_BOT
+
+    return IRC_BOT
 
 
 def check_auth(account):
