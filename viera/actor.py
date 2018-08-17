@@ -90,7 +90,11 @@ from .authreqs import check_reqs
 
 async def handle_create(actor, data, request):
     content = strip_html(data['object']['content']).split()
-    check_reqs(content, actor)
+
+    # check if the message is an authorization token for linking identities together
+    # if it is, then it's not a message we want to relay to IRC.
+    if check_reqs(content, actor):
+        return
 
 
 async def handle_follow(actor, data, request):

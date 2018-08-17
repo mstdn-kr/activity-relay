@@ -33,6 +33,8 @@ def check_reqs(chunks, actor):
 
         DATABASE["auths"][req.irc_account] = req.actor
 
+    return True in results
+
 
 def new_auth_req(irc_nickname, irc_account):
     authid = str(uuid.uuid4())
