@@ -27,9 +27,11 @@ PRIVKEY = RSA.importKey(DATABASE["actorKeys"]["privateKey"])
 PUBKEY = PRIVKEY.publickey()
 
 
-from . import app
+from . import app, CONFIG
 from .remote_actor import fetch_actor
 
+
+AP_CONFIG = CONFIG.get('ap', {'host': 'localhost'})
 
 
 async def actor(request):
@@ -79,6 +81,20 @@ async def push_message_to_actor(actor, message, our_key_id):
             pass
 
 
+async def follow_remote_actor(actor_uri):
+    actor = await fetch_actor(actor_uri)
+
+    message = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "type": "Follow",
+        "to": [actor['id']],
+        "object": [actor['id']],
+        "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
+        "actor": "https://{}/actor".format(AP_CONFIG['host'])
+    }
+    await push_message_to_actor(actor, message, "https://{}/actor#main-key".format(AP_CONFIG['host']))
+
+
 tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
 def strip_html(data):
     no_tags = tag_re.sub('', data)
@@ -111,6 +127,7 @@ async def handle_follow(actor, data, request):
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Accept",
         "to": [actor["id"]],
+        "actor": "https://{}/actor".format(request.host),
 
         # this is wrong per litepub, but mastodon < 2.4 is not compliant with that profile.
         "object": {
