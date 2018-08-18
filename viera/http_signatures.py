@@ -36,6 +36,7 @@ def build_signing_string(headers, used_headers):
 
 
 def sign_headers(headers, key, key_id):
+    headers = {x.lower(): y for x, y in headers.items()}
     used_headers = headers.keys()
     sig = {
         'keyId': key_id,
