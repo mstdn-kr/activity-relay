@@ -144,9 +144,12 @@ async def handle_create(actor, data, request):
     if check_reqs(content, actor):
         return
 
-    # fetch our IRC bot
-    bot = get_irc_bot()
-    bot.relay_message(actor, data['object'], ' '.join(content))
+    # check that the message is public before relaying
+    public_uri = 'https://www.w3.org/ns/activitystreams#Public'
+
+    if public_uri in data.get('to', []) or public_uri in data.get('cc', []):
+        bot = get_irc_bot()
+        bot.relay_message(actor, data['object'], ' '.join(content))
 
 
 async def handle_follow(actor, data, request):
