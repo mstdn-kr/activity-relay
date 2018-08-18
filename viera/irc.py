@@ -249,6 +249,7 @@ class IRCProtocol(asyncio.Protocol):
         fmt = "\x02{name}\x02: {content} [{url}]"
 
         content = html.unescape(content)
+        content = html.unescape(content)
         msgcontent = content[0:256]
         if len(content) > 256:
             msgcontent += '...'
