@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import base64
+import html
 
 from blinker import signal
 
@@ -105,6 +106,10 @@ class IRCProtocol(asyncio.Protocol):
         asyncio.ensure_future(follow_remote_actor(actor_uri))
         self.say(nickname, 'Following \x02{}\x02'.format(actor_uri))
 
+    def unfollow(self, nickname, actor_uri):
+        asyncio.ensure_future(unfollow_remote_actor(actor_uri))
+        self.say(nickname, 'Unfollowing \x02{}\x02'.format(actor_uri))
+
     def set_pending_action(self, nickname, action):
         if nickname not in self.pending_actions:
             self.pending_actions[nickname] = action
@@ -139,8 +144,8 @@ class IRCProtocol(asyncio.Protocol):
             if data not in IRC_CONFIG['privileged']:
                 self.say(nickname, "Access denied: \x02{0}\x02 is unprivileged.".format(data))
                 return
-            logging.info('allowed unfollow: %r', action['follow'])
-            self.follow(nickname, action['follow'])
+            logging.info('allowed unfollow: %r', action['unfollow'])
+            self.unfollow(nickname, action['unfollow'])
 
     def handle_auth_req(self, req):
         self.say(req.irc_nickname, "The actor \x02{0}\x02 is now linked to the IRC account \x02{1}\x02.".format(req.actor, req.irc_account))
@@ -184,6 +189,12 @@ class IRCProtocol(asyncio.Protocol):
             logging.info('considering whether to follow: %r', chunks[1])
 
             self.set_pending_action(source_nick, {'follow': chunks[1]})
+            self.fetch_account_whox(message)
+        elif message.params[1][0:8] == 'unfollow':
+            chunks = message.params[1].split()
+            logging.info('considering whether to unfollow: %r', chunks[1])
+
+            self.set_pending_action(source_nick, {'unfollow': chunks[1]})
             self.fetch_account_whox(message)
 
     def handle_public_message(self, message):
@@ -237,6 +248,7 @@ class IRCProtocol(asyncio.Protocol):
     def relay_message(self, actor, obj, content):
         fmt = "\x02{name}\x02: {content} [{url}]"
 
+        content = html.unescape(content)
         msgcontent = content[0:256]
         if len(content) > 256:
             msgcontent += '...'
