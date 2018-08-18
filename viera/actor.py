@@ -114,8 +114,8 @@ async def unfollow_remote_actor(actor_uri):
              "type": "Follow",
              "object": actor_uri,
              "actor": actor['id'],
-             "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
-        }
+             "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4())
+        },
         "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
         "actor": "https://{}/actor".format(AP_CONFIG['host'])
     }
