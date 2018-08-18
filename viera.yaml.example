@@ -25,10 +25,17 @@ irc:
   # channels for the bot to join
   channels:
     - '#mychannel'
+    - '#myotherchannel'
 
   # channels for the bot to relay AP posts to
   relay_channels:
-    - '#mychannel'
+
+    # allow any AP actor to be relayed
+    '#mychannel': []
+
+    # allow only one AP actor to be relayed
+    '#myotherchannel':
+      - 'https://example.org/~alyssa'
 
   # IRC services credentials.
   sasl_username: viera

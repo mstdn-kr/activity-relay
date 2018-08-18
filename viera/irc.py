@@ -254,8 +254,9 @@ class IRCProtocol(asyncio.Protocol):
         if len(content) > 256:
             msgcontent += '...'
 
+        targets = [chan for chan, actors in IRC_CONFIG['relay_channels'].items() if not actors or actor['id'] in actors]
         message = fmt.format(name=actor['name'], content=msgcontent, url=obj['id'])
-        target = ','.join(IRC_CONFIG['relay_channels'])
+        target = ','.join(targets)
 
         self.say(target, message)
 
