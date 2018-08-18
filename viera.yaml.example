@@ -1,0 +1,46 @@
+# this is the path that the object graph will get dumped to (in JSON-LD format),
+# you probably shouldn't change it, but you can if you want.
+db: viera.jsonld
+
+# this section configures the IRC bot
+irc:
+  # hostname of IRC network to connect to
+  host: chat.freenode.net
+
+  # port of IRC network to connect to
+  port: 6697
+
+  # whether to use SSL/TLS to connect or not
+  ssl: true
+
+  # the main nickname of the bot to use
+  nickname: viera
+
+  # the username of the bot to use
+  username: viera
+
+  # the realname / GECOS of the bot to use
+  realname: Viera; https://viera.dereferenced.org
+
+  # channels for the bot to join
+  channels:
+    - '#mychannel'
+
+  # channels for the bot to relay AP posts to
+  relay_channels:
+    - '#mychannel'
+
+  # IRC services credentials.
+  sasl_username: viera
+  sasl_password: examplepass
+
+  # IRC users with accounts linked to these AP identities may administer the bot
+  # (follow and unfollow commands)
+  privileged:
+    - 'https://pleroma.site/users/kaniini'
+
+# this section is for ActivityPub
+ap:
+  # this is used for generating activitypub messages, as well as instructions for
+  # linking AP identities.  it should be an SSL-enabled domain reachable by https.
+  host: 'viera.dereferenced.org'
