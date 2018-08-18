@@ -41,6 +41,7 @@ async def actor(request):
             "sharedInbox": "https://{}/inbox".format(request.host)
         },
         "followers": "https://{}/followers".format(request.host),
+        "following": "https://{}/following".format(request.host),
         "inbox": "https://{}/inbox".format(request.host),
         "name": "Viera",
         "type": "Application",
@@ -76,19 +77,24 @@ async def push_message_to_actor(actor, message, our_key_id):
     }
     headers['signature'] = sign_headers(headers, PRIVKEY, our_key_id)
 
+    logging.debug('%r', headers)
+    logging.debug('%r >> %r', actor['inbox'], message)
+
     async with aiohttp.ClientSession() as session:
         async with session.post(actor['inbox'], data=data, headers=headers) as resp:
             pass
 
 
 async def follow_remote_actor(actor_uri):
+    logging.info('following: %r', actor_uri)
+
     actor = await fetch_actor(actor_uri)
 
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Follow",
         "to": [actor['id']],
-        "object": [actor['id']],
+        "object": actor['id'],
         "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
         "actor": "https://{}/actor".format(AP_CONFIG['host'])
     }
@@ -106,7 +112,7 @@ from .authreqs import check_reqs, get_irc_bot
 
 async def handle_create(actor, data, request):
     # for now, we only care about Notes
-    if data['object']['type'] != Note:
+    if data['object']['type'] != 'Note':
         return
 
     # strip the HTML if present
@@ -119,7 +125,7 @@ async def handle_create(actor, data, request):
 
     # fetch our IRC bot
     bot = get_irc_bot()
-    bot.relay_message(actor, data['object'], content)
+    bot.relay_message(actor, data['object'], ' '.join(content))
 
 
 async def handle_follow(actor, data, request):

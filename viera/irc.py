@@ -5,6 +5,7 @@ import base64
 from blinker import signal
 
 from . import CONFIG
+from .actor import follow_remote_actor
 from .irc_envelope import RFC1459Message
 
 from .authreqs import new_auth_req, set_irc_bot, check_auth, fetch_auth, drop_auth
@@ -99,6 +100,10 @@ class IRCProtocol(asyncio.Protocol):
             return
         self.say(chan, '\x02{0}\x02: \x02{1}\x02'.format(nickname, data), verb='PRIVMSG')
 
+    def follow(self, nickname, actor_uri):
+        asyncio.ensure_future(follow_remote_actor(actor_uri))
+        self.say(nickname, 'Following \x02{}\x02'.format(actor_uri))
+
     def set_pending_action(self, nickname, action):
         if nickname not in self.pending_actions:
             self.pending_actions[nickname] = action
@@ -117,6 +122,9 @@ class IRCProtocol(asyncio.Protocol):
             self.say(nickname, "The association of \x02{0}\x02 with \x02{1}\x02 has been dropped.".format(account, data))
         elif 'whois' in action:
             self.whois(nickname, action['whois'], account)
+        elif 'follow' in action:
+            logging.info('allowed follow: %r', action['follow'])
+            self.follow(nickname, action['follow'])
 
     def handle_auth_req(self, req):
         self.say(req.irc_nickname, "The actor \x02{0}\x02 is now linked to the IRC account \x02{1}\x02.".format(req.actor, req.irc_account))
@@ -154,6 +162,12 @@ class IRCProtocol(asyncio.Protocol):
             self.fetch_account_whox(message)
         elif message.params[1] in ('voice', 'invite', 'drop'):
             self.set_pending_action(source_nick, message.params[1])
+            self.fetch_account_whox(message)
+        elif message.params[1][0:6] == 'follow':
+            chunks = message.params[1].split()
+            logging.info('considering whether to follow: %r', chunks[1])
+
+            self.set_pending_action(source_nick, {'follow': chunks[1]})
             self.fetch_account_whox(message)
 
     def handle_public_message(self, message):
