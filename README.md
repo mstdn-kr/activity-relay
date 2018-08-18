@@ -12,6 +12,9 @@ package as the `LICENSE` file.
 
 ## Setup
 
+You need at least Python 3.5 (3.5.2 or newer recommended) to make use of this software.
+It simply will not run on older Python versions.
+
 `viera` uses the new `pipenv` python environment manager, you should install it before
 trying to make use of this software:
 
