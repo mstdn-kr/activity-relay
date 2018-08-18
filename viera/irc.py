@@ -5,11 +5,12 @@ import base64
 from blinker import signal
 
 from . import CONFIG
-from .actor import follow_remote_actor
+from .actor import follow_remote_actor, unfollow_remote_actor
 from .irc_envelope import RFC1459Message
 
 from .authreqs import new_auth_req, set_irc_bot, check_auth, fetch_auth, drop_auth
 IRC_CONFIG = CONFIG.get('irc', {})
+AP_CONFIG = CONFIG.get('irc', {'host': 'localhost'})
 
 # SASL_PAYLOAD = base64.b64encode(b'\x00'.join([IRC_CONFIG['sasl_username'], IRC_CONFIG['sasl_username'], IRC_CONFIG['sasl_password']]))
 
@@ -127,8 +128,18 @@ class IRCProtocol(asyncio.Protocol):
             if not data:
                 return
             if data not in IRC_CONFIG['privileged']:
+                self.say(nickname, "Access denied: \x02{0}\x02 is unprivileged.".format(data))
                 return
             logging.info('allowed follow: %r', action['follow'])
+            self.follow(nickname, action['follow'])
+        elif 'unfollow' in action:
+            data = fetch_auth(account)
+            if not data:
+                return
+            if data not in IRC_CONFIG['privileged']:
+                self.say(nickname, "Access denied: \x02{0}\x02 is unprivileged.".format(data))
+                return
+            logging.info('allowed unfollow: %r', action['follow'])
             self.follow(nickname, action['follow'])
 
     def handle_auth_req(self, req):
@@ -152,7 +163,7 @@ class IRCProtocol(asyncio.Protocol):
         if not check_auth(account) and not self.pending_whois(nickname, True):
             auth = new_auth_req(nickname, account)
             self.say(nickname, "Authentication is required for this action.  In order to prove your identity, you need to send me a token via the fediverse.")
-            self.say(nickname, "On most platforms, posting like this will work: \x02@viera@viera.dereferenced.org {}\x02".format(auth))
+            self.say(nickname, "On most platforms, posting like this will work: \x02@viera@{1} {0}\x02".format(auth, AP_CONFIG['host']))
             self.say(nickname, "This token is ephemeral, so you can send it to me publicly if your platform does not support direct messages.")
         else:
             self.process_pending_action(nickname, account)

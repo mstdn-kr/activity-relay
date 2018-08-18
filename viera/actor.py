@@ -101,6 +101,27 @@ async def follow_remote_actor(actor_uri):
     await push_message_to_actor(actor, message, "https://{}/actor#main-key".format(AP_CONFIG['host']))
 
 
+async def unfollow_remote_actor(actor_uri):
+    logging.info('unfollowing: %r', actor_uri)
+
+    actor = await fetch_actor(actor_uri)
+
+    message = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "type": "Undo",
+        "to": [actor['id']],
+        "object": {
+             "type": "Follow",
+             "object": actor_uri,
+             "actor": actor['id'],
+             "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
+        }
+        "id": "https://{}/activities/{}".format(AP_CONFIG['host'], uuid.uuid4()),
+        "actor": "https://{}/actor".format(AP_CONFIG['host'])
+    }
+    await push_message_to_actor(actor, message, "https://{}/actor#main-key".format(AP_CONFIG['host']))
+
+
 tag_re = re.compile(r'(<!--.*?-->|<[^>]*>)')
 def strip_html(data):
     no_tags = tag_re.sub('', data)
