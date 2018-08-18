@@ -123,6 +123,11 @@ class IRCProtocol(asyncio.Protocol):
         elif 'whois' in action:
             self.whois(nickname, action['whois'], account)
         elif 'follow' in action:
+            data = fetch_auth(account)
+            if not data:
+                return
+            if data not in IRC_CONFIG['privileged']:
+                return
             logging.info('allowed follow: %r', action['follow'])
             self.follow(nickname, action['follow'])
 
