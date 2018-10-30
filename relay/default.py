@@ -25,6 +25,6 @@ async def default(request):
 <p>To host your own relay, you may download the code at this address: <a href="https://git.pleroma.social/pleroma/relay">https://git.pleroma.social/pleroma/relay</a></p>
 </body></html>
 
-""".format(host=host))
+""".format(host=host, note=note))
 
 app.router.add_get('/', default)
