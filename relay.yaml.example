@@ -2,8 +2,15 @@
 # you probably shouldn't change it, but you can if you want.
 db: relay.jsonld
 
+# Listener
+listen: 0.0.0.0
+port: 8080
+
+# Note
+note: "Make a note about your instance here."
+
 # this section is for ActivityPub
 ap:
   # this is used for generating activitypub messages, as well as instructions for
   # linking AP identities.  it should be an SSL-enabled domain reachable by https.
-  host: 'relay.pleroma.site'
+  host: 'relay.kitsunet.net'

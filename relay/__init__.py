@@ -26,4 +26,4 @@ app = aiohttp.web.Application(middlewares=[
 from . import database
 from . import actor
 from . import webfinger
-
+from . import default
