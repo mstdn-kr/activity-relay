@@ -3,7 +3,6 @@ import aiohttp.web
 import logging
 
 from . import app
-from .irc import irc_bot
 
 
 async def start_webserver():
@@ -19,7 +18,6 @@ async def start_webserver():
 def main():
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(start_webserver())
-    asyncio.ensure_future(irc_bot())
     loop.run_forever()
 
 
