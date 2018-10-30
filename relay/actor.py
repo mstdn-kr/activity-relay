@@ -135,8 +135,45 @@ def strip_html(data):
     return cgi.escape(no_tags)
 
 
-async def handle_create(actor, data, request):
-    pass
+def distill_inboxes(actor):
+    global DATABASE
+
+    inbox = get_actor_inbox(actor)
+    targets = [target for target in DATABASE.get('relay-list', []) if target != inbox]
+
+    assert inbox not in targets
+
+    return targets
+
+
+def distill_object_id(activity):
+    logging.debug('>> determining object ID for %r', activity['object'])
+    obj = activity['object']
+
+    if isinstance(obj, str):
+        return obj
+
+    return obj['id']
+
+
+async def handle_relay(actor, data, request):
+    object_id = distill_object_id(data)
+
+    message = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "type": "Announce",
+        "to": ["https://{}/actor/followers".format(request.host)],
+        "actor": "https://{}/actor".format(request.host),
+        "object": object_id,
+        "id": "https://{}/activities/{}".format(request.host, uuid.uuid4())
+    }
+
+    logging.info('>> relay: %r', message)
+
+    inboxes = distill_inboxes(actor)
+
+    futures = [push_message_to_actor({'inbox': inbox}, message, 'https://{}/actor#main-key'.format(request.host)) for inbox in inboxes]
+    asyncio.ensure_future(asyncio.gather(*futures))
 
 
 async def handle_follow(actor, data, request):
@@ -190,7 +227,8 @@ async def handle_undo(actor, data, request):
 
 
 processors = {
-    'Create': handle_create,
+    'Announce': handle_relay,
+    'Create': handle_relay,
     'Follow': handle_follow,
     'Undo': handle_undo
 }
