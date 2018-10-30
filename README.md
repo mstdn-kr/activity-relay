@@ -1,13 +1,13 @@
-# viera
+# ActivityRelay
 
-A useful IRC and ActivityPub bot which links identities and relays messages.
+A generic LitePub message relay.
 
 
 ## Copyleft
 
-`viera` is copyrighted, but free software, licensed under the terms of the GNU Affero
-General Public License version 3 (AGPLv3) license.  You can find a copy of it in this
-package as the `LICENSE` file.
+ActivityRelay is copyrighted, but free software, licensed under the terms of the GNU
+Affero General Public License version 3 (AGPLv3) license.  You can find a copy of it
+in this package as the `LICENSE` file.
 
 
 ## Setup
@@ -15,23 +15,16 @@ package as the `LICENSE` file.
 You need at least Python 3.5 (3.5.2 or newer recommended) to make use of this software.
 It simply will not run on older Python versions.
 
-`viera` uses the new `pipenv` python environment manager, you should install it before
-trying to make use of this software:
+Install the dependencies as you normally would (`pip3 install -r requirements.txt`).
 
-    $ pip3 install pipenv
+Copy `relay.yaml.example` to `relay.yaml` and edit it as appropriate:
 
-Next, create the virtual environment for `viera` to use:
+    $ cp relay.yaml.example relay.yaml
+    $ $EDITOR relay.yaml
 
-    $ pipenv install
+Finally, you can launch the relay:
 
-Next, copy `viera.yaml.example` to `viera.yaml` and edit it as appropriate:
-
-    $ cp viera.yaml.example viera.yaml
-    $ $EDITOR viera.yaml
-
-Finally, you can launch viera:
-
-    $ pipenv run python3 -m viera
+    $ python3 -m relay
 
 It is suggested to run this under some sort of supervisor, such as runit, daemontools,
 s6 or systemd.  Configuration of the supervisor is not covered here, as it is different
@@ -44,37 +37,22 @@ of your webserver is not discussed here, but any guide explaining how to configu
 modern non-PHP web application should cover it.
 
 
-## Getting started
+## Getting Started
 
-It is required to register a services account for the bot.  This is different depending
-on the IRC network in use.
+Normally, you would direct your LitePub instance software to follow the LitePub actor
+found on the relay.  In Pleroma this would be something like:
 
-It is also required to use SASL to authenticate to the IRC network.  This is supported on
-most IRC networks.
+    $ MIX_ENV=prod mix relay_follow https://your.relay.hostname/actor
 
-`viera` works with ActivityPub identities as the primary source of trust.  This means that
-you are required to link an ActivityPub identity to your IRC identity in order to
-authenticate to the bot.  To do that, make sure you are logged into your NickServ or similar
-account and message the bot on IRC:
-
-    /msg yourbot auth
-
-The bot will respond with an authentication token that you must supply via the fediverse,
-in most cases you can just copy and paste the exact message it provides.
+Mastodon uses an entirely different relay protocol but supports LitePub relay protocol
+as well when the Mastodon relay handshake is used.  In these cases, Mastodon relay
+clients should follow `http://your.relay.hostname/inbox` as they would with Mastodon's
+own relay software.
 
 
-### Following accounts to relay to IRC
+## Performance
 
-Once you have authenticated to an AP identity which is listed in the `privileged` group in
-the config file, you may configure the bot to follow accounts, by using the `follow` command:
-
-    /msg yourbot follow https://pleroma.site/users/kaniini
-
-This will cause your bot to request an ActivityPub connection between itself and the user you
-followed.  In most cases this will be set up immediately, but in some cases, there may be a delay,
-such as when accounts are restricted.
-
-If you want the bot to stop following an account, you can use the `unfollow` command:
-
-    /msg yourbot unfollow https://pleroma.site/users/kaniini
-
+Performance is very good, with all data being stored in memory and serialized to a
+JSON-LD object graph.  Worker coroutines are spawned in the background to distribute
+the messages in a scatter-gather pattern.  Performance is comparable to, if not
+superior to, the Mastodon relay software, with improved memory efficiency.
