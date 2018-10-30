@@ -5,7 +5,7 @@ from . import app
 async def webfinger(request):
     subject = request.query['resource']
 
-    if subject != 'acct:viera@{}'.format(request.host):
+    if subject != 'acct:relay@{}'.format(request.host):
         return aiohttp.web.json_response({'error': 'user not found'}, status=404)
 
     actor_uri = "https://{}/actor".format(request.host)

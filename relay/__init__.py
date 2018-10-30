@@ -8,7 +8,7 @@ import yaml
 
 
 def load_config():
-    with open('viera.yaml') as f:
+    with open('relay.yaml') as f:
          return yaml.load(f)
 
 
