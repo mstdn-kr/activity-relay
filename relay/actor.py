@@ -1,5 +1,6 @@
 import aiohttp
 import aiohttp.web
+import asyncio
 import logging
 import uuid
 import urllib.parse
@@ -65,8 +66,13 @@ app.router.add_get('/actor', actor)
 from .http_signatures import sign_headers
 
 
+get_actor_inbox = lambda actor: actor.get('endpoints', {}).get('sharedInbox', actor['inbox'])
+
+
 async def push_message_to_actor(actor, message, our_key_id):
-    url = urllib.parse.urlsplit(actor['inbox'])
+    inbox = get_actor_inbox(actor)
+
+    url = urllib.parse.urlsplit(inbox)
 
     # XXX: Digest
     data = json.dumps(message)
@@ -78,12 +84,12 @@ async def push_message_to_actor(actor, message, our_key_id):
     }
     headers['signature'] = sign_headers(headers, PRIVKEY, our_key_id)
 
-    logging.debug('%r', headers)
-    logging.debug('%r >> %r', actor['inbox'], message)
+    logging.debug('%r >> %r', inbox, message)
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(actor['inbox'], data=data, headers=headers) as resp:
-            pass
+        async with session.post(inbox, data=data, headers=headers) as resp:
+            resp_payload = await resp.text()
+            logging.debug('%r >> resp %r', inbox, resp_payload)
 
 
 async def follow_remote_actor(actor_uri):
@@ -134,6 +140,15 @@ async def handle_create(actor, data, request):
 
 
 async def handle_follow(actor, data, request):
+    global DATABASE
+
+    following = DATABASE.get('relay-list', [])
+    inbox = get_actor_inbox(actor)
+
+    if inbox not in following:
+        following += [inbox]
+        DATABASE['relay-list'] = following
+
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Accept",
@@ -150,12 +165,34 @@ async def handle_follow(actor, data, request):
 
         "id": "https://{}/activities/{}".format(request.host, uuid.uuid4()),
     }
-    await push_message_to_actor(actor, message, 'https://{}/actor#main-key'.format(request.host))
+
+    asyncio.ensure_future(push_message_to_actor(actor, message, 'https://{}/actor#main-key'.format(request.host)))
+
+    if data['object'].endswith('/actor'):
+        asyncio.ensure_future(follow_remote_actor(actor['id']))
+
+
+async def handle_undo(actor, data, request):
+    global DATABASE
+
+    child = data['object']
+    if child['type'] == 'Follow':
+        following = DATABASE.get('relay-list', [])
+
+        inbox = get_actor_inbox(actor)
+
+        if inbox in following:
+            following.remove(inbox)
+            DATABASE['relay-list'] = following
+
+        if child['object'].endswith('/actor'):
+            await unfollow_remote_actor(actor['id'])
 
 
 processors = {
     'Create': handle_create,
-    'Follow': handle_follow
+    'Follow': handle_follow,
+    'Undo': handle_undo
 }
 
 
@@ -167,6 +204,8 @@ async def inbox(request):
 
     actor = await fetch_actor(data["actor"])
     actor_uri = 'https://{}/actor'.format(request.host)
+
+    logging.debug(">> payload %r", data)
 
     processor = processors.get(data['type'], None)
     if processor:
