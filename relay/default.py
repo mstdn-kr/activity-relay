@@ -2,7 +2,7 @@ import aiohttp.web
 from . import app, CONFIG
 
 host = CONFIG['ap']['host']
-host = CONFIG['note']
+note = CONFIG['note']
 
 async def default(request):
     return aiohttp.web.Response(
