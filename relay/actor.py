@@ -32,7 +32,7 @@ from . import app, CONFIG
 from .remote_actor import fetch_actor
 
 
-AP_CONFIG = CONFIG.get('ap', {'host': 'localhost'})
+AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[]})
 
 
 async def actor(request):
@@ -185,6 +185,9 @@ async def handle_follow(actor, data, request):
 
     following = DATABASE.get('relay-list', [])
     inbox = get_actor_inbox(actor)
+
+    if re.search('https://(.*)/inbox',inbox).group(1) in AP_CONFIG['blocked_instances']:
+        return
 
     if inbox not in following:
         following += [inbox]
