@@ -112,6 +112,7 @@ async def http_signatures_middleware(app, handler):
 
             actor = data["actor"]
             if not (await validate(actor, request)):
+                logging.info('Signature validation failed for: %r', actor)
                 raise aiohttp.web.HTTPUnauthorized(body='signature check failed, signature did not match key')
 
             return (await handler(request))
