@@ -60,11 +60,14 @@ def sign_headers(headers, key, key_id):
 async def fetch_actor_key(actor):
     actor_data = await fetch_actor(actor)
 
+    if not actor_data:
+        return None
+
     if 'publicKey' not in actor_data:
-         return None
+        return None
 
     if 'publicKeyPem' not in actor_data['publicKey']:
-         return None
+        return None
 
     return RSA.importKey(actor_data['publicKey']['publicKeyPem'])
 
