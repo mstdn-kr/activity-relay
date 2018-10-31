@@ -1,10 +1,11 @@
 import aiohttp.web
+import re
 from . import app, CONFIG
 from .database import DATABASE
 
 host = CONFIG['ap']['host']
 note = CONFIG['note']
-targets = '<br>'.join([target for target in DATABASE.get('relay-list', [])])
+targets = '<br>'.join([re.search('https://(.*)/inbox',target).group(1) for target in DATABASE.get('relay-list', [])])
 
 async def default(request):
     return aiohttp.web.Response(
