@@ -160,7 +160,7 @@ async def handle_relay(actor, data, request):
     object_id = distill_object_id(data)
 
     # don't relay mastodon announces -- causes LRP fake direction issues
-    if data['type'] == 'Announce' and length(data.get('cc', [])) > 0:
+    if data['type'] == 'Announce' and len(data.get('cc', [])) > 0:
         return
 
     message = {
