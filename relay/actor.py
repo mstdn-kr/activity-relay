@@ -159,6 +159,10 @@ def distill_object_id(activity):
 async def handle_relay(actor, data, request):
     object_id = distill_object_id(data)
 
+    # don't relay mastodon announces -- causes LRP fake direction issues
+    if data['type'] == 'Announce' and length(data.get('cc', [])) > 0:
+        return
+
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Announce",
