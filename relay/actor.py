@@ -168,7 +168,7 @@ async def handle_relay(actor, data, request):
         "id": "https://{}/activities/{}".format(request.host, uuid.uuid4())
     }
 
-    logging.info('>> relay: %r', message)
+    logging.debug('>> relay: %r', message)
 
     inboxes = distill_inboxes(actor)
 
