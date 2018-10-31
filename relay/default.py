@@ -1,10 +1,8 @@
 import aiohttp.web
 from . import app, CONFIG
-from .database import DATABASE
 
 host = CONFIG['ap']['host']
 note = CONFIG['note']
-targets = '<br>'.join([target for target in DATABASE.get('relay-list', [])])
 
 async def default(request):
     return aiohttp.web.Response(
@@ -25,9 +23,8 @@ async def default(request):
 <p>For Mastodon instances, you may subscribe to this relay with the address: <a href="https://{host}/inbox">https://{host}/inbox</a></p>
 <p>For Pleroma and other instances, you may subscribe to this relay with the address: <a href="https://{host}/actor">https://{host}/actor</a></p>
 <p>To host your own relay, you may download the code at this address: <a href="https://git.pleroma.social/pleroma/relay">https://git.pleroma.social/pleroma/relay</a></p>
-<br><p>List of registered instances:<br>{targets}</p>
 </body></html>
 
-""".format(host=host, note=note,targets=targets))
+""".format(host=host, note=note))
 
 app.router.add_get('/', default)
