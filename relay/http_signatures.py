@@ -74,6 +74,9 @@ async def fetch_actor_key(actor):
 
 async def validate(actor, request):
     pubkey = await fetch_actor_key(actor)
+    if not pubkey:
+        return False
+
     logging.debug('actor key: %r', pubkey)
 
     headers = request.headers.copy()
