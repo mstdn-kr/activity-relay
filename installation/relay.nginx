@@ -49,10 +49,10 @@ server {
   # sts, change if you care.
   # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
   
-  # not actually needed, this enables you to use a static page on your domain for your root page.
-  location = / {
-    index index.html;
-  }
+  # uncomment this to use a static page in your webroot for your root page.
+  #location = / {
+  #  index index.html;
+  #}
 
   location / {
     try_files $uri @proxy;
