@@ -3,9 +3,9 @@ import aiohttp.web
 import asyncio
 import logging
 import uuid
+import re
 import urllib.parse
 import simplejson as json
-import re
 import cgi
 from Crypto.PublicKey import RSA
 from .database import DATABASE
@@ -186,7 +186,7 @@ async def handle_follow(actor, data, request):
     following = DATABASE.get('relay-list', [])
     inbox = get_actor_inbox(actor)
 
-    if re.search('https://(.*)/inbox',inbox).group(1) in AP_CONFIG['blocked_instances']:
+    if urllib.parse.urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
         return
 
     if inbox not in following:

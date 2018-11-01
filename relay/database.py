@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import re
+import urllib.parse
 import simplejson as json
 
 
@@ -16,7 +16,7 @@ except:
 
 following = DATABASE.get('relay-list', [])
 for inbox in following:
-    if re.search('https://(.*)/inbox',inbox).group(1) in CONFIG['ap']['blocked_instances']:
+    if urllib.parse.urlsplit(inbox).hostname in CONFIG['ap']['blocked_instances']:
         following.remove(inbox)
         DATABASE['relay-list'] = following
 
