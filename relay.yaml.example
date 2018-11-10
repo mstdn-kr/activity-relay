@@ -14,3 +14,7 @@ ap:
   # this is used for generating activitypub messages, as well as instructions for
   # linking AP identities.  it should be an SSL-enabled domain reachable by https.
   host: 'relay.example.com'
+  blocked_instances:
+  - 'bad-instance.example.com'
+  - 'another-bad-instance.example.com'
+  

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import urllib.parse
 import simplejson as json
 
 
@@ -13,6 +14,11 @@ except:
     logging.info('No database was found, making a new one.')
     DATABASE = {}
 
+following = DATABASE.get('relay-list', [])
+for inbox in following:
+    if urllib.parse.urlsplit(inbox).hostname in CONFIG['ap']['blocked_instances']:
+        following.remove(inbox)
+        DATABASE['relay-list'] = following
 
 async def database_save():
     while True:
