@@ -20,6 +20,9 @@ for inbox in following:
         following.remove(inbox)
         DATABASE['relay-list'] = following
 
+if 'actors' in DATABASE:
+    DATABASE.pop('actors')
+
 async def database_save():
     while True:
         with open(CONFIG['db'], 'w') as f:
