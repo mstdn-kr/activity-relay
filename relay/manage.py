@@ -14,7 +14,7 @@ def relay_follow():
         print('usage: python3 -m relay.manage follow <target>')
         exit()
 
-    target = sys.argv[2])
+    target = sys.argv[2]
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(follow_remote_actor(target))
@@ -27,7 +27,7 @@ def relay_unfollow():
         print('usage: python3 -m relay.manage unfollow <target>')
         exit()
 
-    target = sys.argv[2])
+    target = sys.argv[2]
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(unfollow_remote_actor(target))
