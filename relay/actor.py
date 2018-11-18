@@ -93,12 +93,15 @@ async def push_message_to_actor(actor, message, our_key_id):
 
     logging.debug('%r >> %r', inbox, message)
 
-    async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
-        async with session.post(inbox, data=data, headers=headers) as resp:
-            if resp.status == 202:
-                return
-            resp_payload = await resp.text()
-            logging.debug('%r >> resp %r', inbox, resp_payload)
+    try:
+        async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
+            async with session.post(inbox, data=data, headers=headers) as resp:
+                if resp.status == 202:
+                    return
+                resp_payload = await resp.text()
+                logging.debug('%r >> resp %r', inbox, resp_payload)
+    except Exception as e:
+        logging.info('Caught %r while pushing to %r.', e, inbox)
 
 
 async def follow_remote_actor(actor_uri):
