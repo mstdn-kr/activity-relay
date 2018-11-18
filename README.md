@@ -56,3 +56,16 @@ Performance is very good, with all data being stored in memory and serialized to
 JSON-LD object graph.  Worker coroutines are spawned in the background to distribute
 the messages in a scatter-gather pattern.  Performance is comparable to, if not
 superior to, the Mastodon relay software, with improved memory efficiency.
+
+
+## Management
+
+You can perform a few management tasks such as peering or depeering other relays by
+invoking the `relay.manage` module.
+
+This will show the available management tasks:
+
+    $ python3 -m relay.manage
+
+When following remote relays, you should use the `/actor` endpoint as you would in
+Pleroma and other LitePub-compliant software.
