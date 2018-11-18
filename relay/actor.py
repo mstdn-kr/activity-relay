@@ -164,11 +164,19 @@ def distill_object_id(activity):
 
 
 async def handle_relay(actor, data, request):
+    global CACHE
+
     object_id = distill_object_id(data)
+
+    if object_id in CACHE:
+        logging.debug('>> already relayed %r as %r', object_id, CACHE[object_id])
+        return
 
     # don't relay mastodon announces -- causes LRP fake direction issues
     if data['type'] == 'Announce' and len(data.get('cc', [])) > 0:
         return
+
+    activity_id = "https://{}/activities/{}".format(request.host, uuid.uuid4())
 
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
@@ -176,7 +184,7 @@ async def handle_relay(actor, data, request):
         "to": ["https://{}/actor/followers".format(request.host)],
         "actor": "https://{}/actor".format(request.host),
         "object": object_id,
-        "id": "https://{}/activities/{}".format(request.host, uuid.uuid4())
+        "id": activity_id
     }
 
     logging.debug('>> relay: %r', message)
@@ -185,6 +193,8 @@ async def handle_relay(actor, data, request):
 
     futures = [push_message_to_actor({'inbox': inbox}, message, 'https://{}/actor#main-key'.format(request.host)) for inbox in inboxes]
     asyncio.ensure_future(asyncio.gather(*futures))
+
+    CACHE[object_id] = activity_id
 
 
 async def handle_follow(actor, data, request):
