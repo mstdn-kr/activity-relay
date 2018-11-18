@@ -28,3 +28,4 @@ from . import actor
 from . import webfinger
 from . import default
 from . import nodeinfo
+from . import http_stats
