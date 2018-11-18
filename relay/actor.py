@@ -51,7 +51,6 @@ async def actor(request):
         "followers": "https://{}/followers".format(request.host),
         "following": "https://{}/following".format(request.host),
         "inbox": "https://{}/inbox".format(request.host),
-        "sharedInbox": "https://{}/inbox".format(request.host),
         "name": "ActivityRelay",
         "type": "Application",
         "id": "https://{}/actor".format(request.host),
