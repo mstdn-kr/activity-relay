@@ -1,0 +1,9 @@
+[Unit]
+Description=ActivityPub Relay
+
+[Service]
+WorkingDirectory=/home/relay/relay
+ExecStart=/usr/bin/python3 -m relay
+
+[Install]
+WantedBy=multi-user.target
