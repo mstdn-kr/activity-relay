@@ -27,3 +27,4 @@ from . import database
 from . import actor
 from . import webfinger
 from . import default
+from . import nodeinfo
