@@ -15,7 +15,7 @@ nodeinfo_template = {
         'outbound': []
     },
     'software': {
-        'name': 'ActivityRelay',
+        'name': 'activityrelay',
         'version': '0.1'
     },
     'usage': {
