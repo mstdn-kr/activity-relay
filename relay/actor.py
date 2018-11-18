@@ -210,6 +210,9 @@ async def handle_follow(actor, data, request):
         following += [inbox]
         DATABASE['relay-list'] = following
 
+        if data['object'].endswith('/actor'):
+            asyncio.ensure_future(follow_remote_actor(actor['id']))
+
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Accept",
@@ -228,9 +231,6 @@ async def handle_follow(actor, data, request):
     }
 
     asyncio.ensure_future(push_message_to_actor(actor, message, 'https://{}/actor#main-key'.format(request.host)))
-
-    if data['object'].endswith('/actor'):
-        asyncio.ensure_future(follow_remote_actor(actor['id']))
 
 
 async def handle_undo(actor, data, request):
