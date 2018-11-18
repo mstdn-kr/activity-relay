@@ -84,6 +84,7 @@ async def push_message_to_actor(actor, message, our_key_id):
         'User-Agent': 'ActivityRelay'
     }
     headers['signature'] = sign_headers(headers, PRIVKEY, our_key_id)
+    headers.pop('(request-target)')
 
     logging.debug('%r >> %r', inbox, message)
 
