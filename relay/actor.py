@@ -11,6 +11,8 @@ from Crypto.PublicKey import RSA
 from .database import DATABASE
 from .http_debug import http_debug
 
+from cachetools import LFUCache
+
 
 # generate actor keys if not present
 if "actorKeys" not in DATABASE:
@@ -34,6 +36,10 @@ from .remote_actor import fetch_actor
 
 
 AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[]})
+CACHE_SIZE = CONFIG.get('cache-size', 16384)
+
+
+CACHE = LFUCache(CACHE_SIZE)
 
 
 async def actor(request):
