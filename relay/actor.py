@@ -9,6 +9,7 @@ import simplejson as json
 import cgi
 from Crypto.PublicKey import RSA
 from .database import DATABASE
+from .http_debug import http_debug
 
 
 # generate actor keys if not present
@@ -86,7 +87,7 @@ async def push_message_to_actor(actor, message, our_key_id):
 
     logging.debug('%r >> %r', inbox, message)
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
         async with session.post(inbox, data=data, headers=headers) as resp:
             resp_payload = await resp.text()
             logging.debug('%r >> resp %r', inbox, resp_payload)
