@@ -95,6 +95,8 @@ async def push_message_to_actor(actor, message, our_key_id):
 
     async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
         async with session.post(inbox, data=data, headers=headers) as resp:
+            if resp.status == 202:
+                return
             resp_payload = await resp.text()
             logging.debug('%r >> resp %r', inbox, resp_payload)
 
