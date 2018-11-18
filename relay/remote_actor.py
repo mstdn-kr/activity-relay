@@ -19,7 +19,7 @@ async def fetch_actor(uri, force=False):
     try:
         async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
             async with session.get(uri, headers={'Accept': 'application/activity+json'}) as resp:
-                if resp.status_code != 200:
+                if resp.status != 200:
                     return None
                 ACTORS[uri] = (await resp.json(encoding='utf-8', content_type=None))
                 return ACTORS[uri]
