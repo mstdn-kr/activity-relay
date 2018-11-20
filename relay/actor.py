@@ -4,9 +4,9 @@ import asyncio
 import logging
 import uuid
 import re
-import urllib.parse
 import simplejson as json
 import cgi
+from urllib.parse import urlsplit
 from Crypto.PublicKey import RSA
 from .database import DATABASE
 from .http_debug import http_debug
@@ -78,7 +78,7 @@ get_actor_inbox = lambda actor: actor.get('endpoints', {}).get('sharedInbox', ac
 async def push_message_to_actor(actor, message, our_key_id):
     inbox = get_actor_inbox(actor)
 
-    url = urllib.parse.urlsplit(inbox)
+    url = urlsplit(inbox)
 
     # XXX: Digest
     data = json.dumps(message)
@@ -208,7 +208,7 @@ async def handle_follow(actor, data, request):
     following = DATABASE.get('relay-list', [])
     inbox = get_actor_inbox(actor)
 
-    if urllib.parse.urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
+    if urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
         return
 
     if inbox not in following:
