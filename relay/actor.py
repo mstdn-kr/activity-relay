@@ -147,11 +147,14 @@ def strip_html(data):
     return cgi.escape(no_tags)
 
 
-def distill_inboxes(actor):
+def distill_inboxes(actor, object_id):
     global DATABASE
+
+    origin_hostname = urlsplit(object_id).hostname
 
     inbox = get_actor_inbox(actor)
     targets = [target for target in DATABASE.get('relay-list', []) if target != inbox]
+    targets = [target for target in targets if urlsplit(target).hostname != origin_hostname]
 
     assert inbox not in targets
 
@@ -194,7 +197,7 @@ async def handle_relay(actor, data, request):
 
     logging.debug('>> relay: %r', message)
 
-    inboxes = distill_inboxes(actor)
+    inboxes = distill_inboxes(actor, object_id)
 
     futures = [push_message_to_actor({'inbox': inbox}, message, 'https://{}/actor#main-key'.format(request.host)) for inbox in inboxes]
     asyncio.ensure_future(asyncio.gather(*futures))
