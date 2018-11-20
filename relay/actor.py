@@ -105,9 +105,12 @@ async def push_message_to_actor(actor, message, our_key_id):
 
 
 async def follow_remote_actor(actor_uri):
-    logging.info('following: %r', actor_uri)
-
     actor = await fetch_actor(actor_uri)
+    if not actor:
+        logging.info('failed to fetch actor at: %r', actor_uri)
+        return
+
+    logging.info('following: %r', actor_uri)
 
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
@@ -121,9 +124,12 @@ async def follow_remote_actor(actor_uri):
 
 
 async def unfollow_remote_actor(actor_uri):
-    logging.info('unfollowing: %r', actor_uri)
-
     actor = await fetch_actor(actor_uri)
+    if not actor:
+        logging.info('failed to fetch actor at: %r', actor_uri)
+        return
+
+    logging.info('unfollowing: %r', actor_uri)
 
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
