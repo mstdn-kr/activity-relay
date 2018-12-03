@@ -161,8 +161,10 @@ def distill_inboxes(actor, object_id):
     inbox = get_actor_inbox(actor)
     targets = [target for target in DATABASE.get('relay-list', []) if target != inbox]
     targets = [target for target in targets if urlsplit(target).hostname != origin_hostname]
+    hostnames = [urlsplit(target).hostname for target in targets]
 
     assert inbox not in targets
+    assert origin_hostname not in hostnames
 
     return targets
 
@@ -184,10 +186,6 @@ async def handle_relay(actor, data, request):
 
     if object_id in CACHE:
         logging.debug('>> already relayed %r as %r', object_id, CACHE[object_id])
-        return
-
-    # don't relay mastodon announces -- causes LRP fake direction issues
-    if data['type'] == 'Announce' and len(data.get('cc', [])) > 0:
         return
 
     activity_id = "https://{}/activities/{}".format(request.host, uuid.uuid4())
