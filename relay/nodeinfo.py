@@ -1,9 +1,16 @@
+import subprocess
 import urllib.parse
 
 import aiohttp.web
 
 from . import app
 from .database import DATABASE
+
+
+try:
+    commit_label = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('ascii')
+except:
+    commit_label = '???'
 
 
 nodeinfo_template = {
@@ -16,7 +23,7 @@ nodeinfo_template = {
     },
     'software': {
         'name': 'activityrelay',
-        'version': '0.1'
+        'version': '0.1 {}'.format(commit_label)
     },
     'usage': {
         'localPosts': 0,
