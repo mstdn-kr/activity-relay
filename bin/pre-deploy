@@ -7,7 +7,7 @@ db: relay.jsonld
 
 # Listener
 listen: 0.0.0.0
-port: ${PORT:-8080}
+port: ${PORT:-5000}
 
 # Note
 note: "Make a note about your instance here."
