@@ -22,8 +22,8 @@ if "actorKeys" not in DATABASE:
     pubkey = privkey.publickey()
 
     DATABASE["actorKeys"] = {
-        "publicKey": pubkey.exportKey('PEM'),
-        "privateKey": privkey.exportKey('PEM')
+        "publicKey": pubkey.exportKey('PEM').decode('UTF-8'),
+        "privateKey": privkey.exportKey('PEM').decode('UTF-8')
     }
 
 
