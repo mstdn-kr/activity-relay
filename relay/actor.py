@@ -35,7 +35,11 @@ from . import app, CONFIG
 from .remote_actor import fetch_actor
 
 
-AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[]})
+AP_CONFIG = CONFIG.get('ap', {
+    'host': 'localhost',
+    'blocked_instances': [],
+    'allowed_instances': [],
+})
 CACHE_SIZE = CONFIG.get('cache-size', 16384)
 
 
@@ -216,6 +220,10 @@ async def handle_follow(actor, data, request):
     inbox = get_actor_inbox(actor)
 
     if urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
+        return
+
+    if AP_CONFIG['allowed_instances'] and\
+            urlsplit(inbox).hostname not in AP_CONFIG['allowed_instances']:
         return
 
     if inbox not in following:
