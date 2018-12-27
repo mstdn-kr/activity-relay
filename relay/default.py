@@ -7,9 +7,9 @@ host = CONFIG['ap']['host']
 note = CONFIG['note']
 
 inboxes = DATABASE.get('relay-list', [])
-targets = '<br>'.join([urllib.parse.urlsplit(target).hostname for target in inboxes])
 
 async def default(request):
+    targets = '<br>'.join([urllib.parse.urlsplit(target).hostname for target in inboxes])
     return aiohttp.web.Response(
         status=200,
         content_type="text/html",
