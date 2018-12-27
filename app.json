@@ -1,4 +1,13 @@
 {
+    "dokku": {
+        "volumes": [
+            {
+                "host": "/var/lib/dokku/data/storage/$APP/files",
+                "app": "/app/files",
+                "phases": "deploy,run"
+            }
+        ]
+    },
     "scripts": {
         "dokku": {
             "predeploy": "./bin/pre-deploy"
