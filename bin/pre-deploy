@@ -17,4 +17,5 @@ ap:
   # this is used for generating activitypub messages, as well as instructions for
   # linking AP identities.  it should be an SSL-enabled domain reachable by https.
   host: '$HOSTNAME'
+  blocked_instances: []
 EOF
