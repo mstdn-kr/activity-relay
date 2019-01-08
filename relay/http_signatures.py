@@ -7,6 +7,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA, SHA256, SHA512
 from Crypto.Signature import PKCS1_v1_5
 
+from cachetools import LFUCache
 from async_lru import alru_cache
 
 from .remote_actor import fetch_actor
@@ -37,6 +38,23 @@ def build_signing_string(headers, used_headers):
     return '\n'.join(map(lambda x: ': '.join([x.lower(), headers[x]]), used_headers))
 
 
+SIGSTRING_CACHE = LFUCache(1024)
+
+def sign_signing_string(sigstring, key):
+    if sigstring in SIGSTRING_CACHE:
+        return SIGSTRING_CACHE[sigstring]
+
+    pkcs = PKCS1_v1_5.new(key)
+    h = SHA256.new()
+    h.update(sigstring.encode('ascii'))
+    sigdata = pkcs.sign(h)
+
+    sigdata = base64.b64encode(sigdata)
+    SIGSTRING_CACHE[sigstring] = sigdata.decode('ascii')
+
+    return SIGSTRING_CACHE[sigstring]
+
+
 def sign_headers(headers, key, key_id):
     headers = {x.lower(): y for x, y in headers.items()}
     used_headers = headers.keys()
@@ -46,14 +64,7 @@ def sign_headers(headers, key, key_id):
         'headers': ' '.join(used_headers)
     }
     sigstring = build_signing_string(headers, used_headers)
-
-    pkcs = PKCS1_v1_5.new(key)
-    h = SHA256.new()
-    h.update(sigstring.encode('ascii'))
-    sigdata = pkcs.sign(h)
-
-    sigdata = base64.b64encode(sigdata)
-    sig['signature'] = sigdata.decode('ascii')
+    sig['signature'] = sign_signing_string(sigstring, key)
 
     chunks = ['{}="{}"'.format(k, v) for k, v in sig.items()]
     return ','.join(chunks)
