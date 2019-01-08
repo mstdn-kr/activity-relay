@@ -7,6 +7,8 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA, SHA256, SHA512
 from Crypto.Signature import PKCS1_v1_5
 
+from async_lru import alru_cache
+
 from .remote_actor import fetch_actor
 
 
@@ -57,6 +59,7 @@ def sign_headers(headers, key, key_id):
     return ','.join(chunks)
 
 
+@alru_cache(maxsize=16384)
 async def fetch_actor_key(actor):
     actor_data = await fetch_actor(actor)
 

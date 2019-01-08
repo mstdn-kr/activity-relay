@@ -10,3 +10,4 @@ PyYAML==3.13
 simplejson==3.16.0
 yarl==1.2.6
 cachetools
+async_lru
