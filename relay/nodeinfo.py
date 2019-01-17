@@ -1,4 +1,3 @@
-import os
 import subprocess
 import urllib.parse
 
@@ -11,7 +10,7 @@ from .database import DATABASE
 try:
     commit_label = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('ascii')
 except:
-    commit_label = os.environ.get('GIT_REV')
+    commit_label = '???'
 
 
 nodeinfo_template = {
