@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sed \
+  -e "s/__PORT__/${PORT:-5000}/g" \
+  -e "s/__HOSTNAME__/$HOSTNAME/g" \
+  relay_template.yaml > relay.yaml
