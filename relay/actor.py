@@ -193,7 +193,7 @@ async def handle_relay(actor, data, request):
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "Announce",
-        "to": ["https://{}/actor/followers".format(request.host)],
+        "to": ["https://{}/followers".format(request.host)],
         "actor": "https://{}/actor".format(request.host),
         "object": object_id,
         "id": activity_id
