@@ -96,3 +96,6 @@ ENV/
 
 viera.yaml
 viera.jsonld
+
+relay.jsonld
+relay.yaml

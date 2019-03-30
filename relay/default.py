@@ -14,7 +14,7 @@ async def default(request):
         status=200,
         content_type="text/html",
         charset="utf-8",
-        text="""
+        text="""<!doctype html>
 <html><head>
  <title>ActivityPub Relay at {host}</title>
  <style>
