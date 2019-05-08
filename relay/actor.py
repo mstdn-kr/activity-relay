@@ -213,6 +213,22 @@ async def handle_relay(actor, data, request):
     CACHE[object_id] = activity_id
 
 
+async def handle_delete(actor, data, request):
+    object_id = distill_object_id(data)
+
+    logging.debug('>> Relay %r', data)
+
+    inboxes = distill_inboxes(actor, object_id)
+
+    futures = [
+        push_message_to_actor(
+            {'inbox': inbox},
+            data,
+            'https://{}/actor#main-key'.format(request.host))
+        for inbox in inboxes]
+    asyncio.ensure_future(asyncio.gather(*futures))
+
+
 async def handle_follow(actor, data, request):
     global DATABASE
 
@@ -273,6 +289,7 @@ async def handle_undo(actor, data, request):
 processors = {
     'Announce': handle_relay,
     'Create': handle_relay,
+    'Delete': handle_delete,
     'Follow': handle_follow,
     'Undo': handle_undo
 }
