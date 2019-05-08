@@ -272,8 +272,12 @@ processors = {
 
 async def inbox(request):
     data = await request.json()
+    instance = urlsplit(data['actor']).hostname
 
     if 'actor' not in data or not request['validated']:
+        raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
+
+    if data['type'] != 'Follow' and 'https://{}/inbox'.format(instance) not in DATABASE['relay-list']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
 
     actor = await fetch_actor(data["actor"])
