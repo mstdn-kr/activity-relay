@@ -17,4 +17,7 @@ ap:
   blocked_instances:
   - 'bad-instance.example.com'
   - 'another-bad-instance.example.com'
-  
+  whitelist_enabled: false
+  whitelist:
+  - 'good-instance.example.com'
+  - 'another.good-instance.example.com'
