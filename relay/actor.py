@@ -213,7 +213,7 @@ async def handle_relay(actor, data, request):
     CACHE[object_id] = activity_id
 
 
-async def handle_delete(actor, data, request):
+async def handle_forward(actor, data, request):
     object_id = distill_object_id(data)
 
     logging.debug('>> Relay %r', data)
@@ -289,9 +289,10 @@ async def handle_undo(actor, data, request):
 processors = {
     'Announce': handle_relay,
     'Create': handle_relay,
-    'Delete': handle_delete,
+    'Delete': handle_forward,
     'Follow': handle_follow,
-    'Undo': handle_undo
+    'Undo': handle_undo,
+    'Update': handle_forward,
 }
 
 
