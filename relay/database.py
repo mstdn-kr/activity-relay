@@ -5,6 +5,7 @@ import simplejson as json
 
 
 from . import CONFIG
+AP_CONFIG = CONFIG.get('ap', {'blocked_instances':[], 'whitelist_enabled': False, 'whitelist': []})
 
 
 try:
@@ -16,7 +17,11 @@ except:
 
 following = DATABASE.get('relay-list', [])
 for inbox in following:
-    if urllib.parse.urlsplit(inbox).hostname in CONFIG['ap']['blocked_instances']:
+    if urllib.parse.urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
+        following.remove(inbox)
+        DATABASE['relay-list'] = following
+
+    elif AP_CONFIG['whitelist_enabled'] is True and urllib.parse.urlsplit(inbox).hostname not in AP_CONFIG['whitelist']:
         following.remove(inbox)
         DATABASE['relay-list'] = following
 

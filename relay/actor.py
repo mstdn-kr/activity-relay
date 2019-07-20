@@ -35,7 +35,7 @@ from . import app, CONFIG
 from .remote_actor import fetch_actor
 
 
-AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[]})
+AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[], 'whitelist_enabled': False, 'whitelist': []})
 CACHE_SIZE = CONFIG.get('cache-size', 16384)
 
 
@@ -106,8 +106,13 @@ async def push_message_to_actor(actor, message, our_key_id):
 
 async def follow_remote_actor(actor_uri):
     actor = await fetch_actor(actor_uri)
+    
     if not actor:
         logging.info('failed to fetch actor at: %r', actor_uri)
+        return
+
+    if AP_CONFIG['whitelist_enabled'] is True and urlsplit(actor_uri).hostname not in AP_CONFIG['whitelist']:
+        logging.info('refusing to follow non-whitelisted actor: %r', actor_uri)
         return
 
     logging.info('following: %r', actor_uri)
@@ -294,7 +299,10 @@ async def inbox(request):
     if 'actor' not in data or not request['validated']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
 
-    if data['type'] != 'Follow' and 'https://{}/inbox'.format(instance) not in DATABASE['relay-list']:
+    elif data['type'] != 'Follow' and 'https://{}/inbox'.format(instance) not in DATABASE['relay-list']:
+        raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
+
+    elif AP_CONFIG['whitelist_enabled'] is True and instance not in AP_CONFIG['whitelist']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
 
     actor = await fetch_actor(data["actor"])
