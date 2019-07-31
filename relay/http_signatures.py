@@ -122,7 +122,7 @@ async def http_signatures_middleware(app, handler):
     async def http_signatures_handler(request):
         request['validated'] = False
 
-        if 'signature' in request.headers:
+        if 'signature' in request.headers and request.method == 'POST':
             data = await request.json()
             if 'actor' not in data:
                 raise aiohttp.web.HTTPUnauthorized(body='signature check failed, no actor in message')
