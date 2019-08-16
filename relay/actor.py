@@ -30,12 +30,13 @@ if "actorKeys" not in DATABASE:
 PRIVKEY = RSA.importKey(DATABASE["actorKeys"]["privateKey"])
 PUBKEY = PRIVKEY.publickey()
 
+sem = asyncio.Semaphore(500)
 
 from . import app, CONFIG
 from .remote_actor import fetch_actor
 
 
-AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[]})
+AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[], 'whitelist_enabled': False, 'whitelist': []})
 CACHE_SIZE = CONFIG.get('cache-size', 16384)
 
 
@@ -77,7 +78,6 @@ get_actor_inbox = lambda actor: actor.get('endpoints', {}).get('sharedInbox', ac
 
 async def push_message_to_actor(actor, message, our_key_id):
     inbox = get_actor_inbox(actor)
-
     url = urlsplit(inbox)
 
     # XXX: Digest
@@ -93,21 +93,28 @@ async def push_message_to_actor(actor, message, our_key_id):
 
     logging.debug('%r >> %r', inbox, message)
 
-    try:
-        async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
-            async with session.post(inbox, data=data, headers=headers) as resp:
-                if resp.status == 202:
-                    return
-                resp_payload = await resp.text()
-                logging.debug('%r >> resp %r', inbox, resp_payload)
-    except Exception as e:
-        logging.info('Caught %r while pushing to %r.', e, inbox)
+    global sem
+    async with sem:
+        try:
+            async with aiohttp.ClientSession(trace_configs=[http_debug()]) as session:
+                async with session.post(inbox, data=data, headers=headers) as resp:
+                    if resp.status == 202:
+                        return
+                    resp_payload = await resp.text()
+                    logging.debug('%r >> resp %r', inbox, resp_payload)
+        except Exception as e:
+            logging.info('Caught %r while pushing to %r.', e, inbox)
 
 
 async def follow_remote_actor(actor_uri):
     actor = await fetch_actor(actor_uri)
+    
     if not actor:
         logging.info('failed to fetch actor at: %r', actor_uri)
+        return
+
+    if AP_CONFIG['whitelist_enabled'] is True and urlsplit(actor_uri).hostname not in AP_CONFIG['whitelist']:
+        logging.info('refusing to follow non-whitelisted actor: %r', actor_uri)
         return
 
     logging.info('following: %r', actor_uri)
@@ -290,8 +297,15 @@ processors = {
 
 async def inbox(request):
     data = await request.json()
+    instance = urlsplit(data['actor']).hostname
 
     if 'actor' not in data or not request['validated']:
+        raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
+
+    elif data['type'] != 'Follow' and 'https://{}/inbox'.format(instance) not in DATABASE['relay-list']:
+        raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
+
+    elif AP_CONFIG['whitelist_enabled'] is True and instance not in AP_CONFIG['whitelist']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')
 
     actor = await fetch_actor(data["actor"])
@@ -304,6 +318,5 @@ async def inbox(request):
         await processor(actor, data, request)
 
     return aiohttp.web.Response(body=b'{}', content_type='application/activity+json')
-
 
 app.router.add_post('/inbox', inbox)
