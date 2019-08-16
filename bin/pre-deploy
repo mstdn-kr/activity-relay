@@ -1,6 +1,21 @@
 #!/bin/bash
 
-sed \
-  -e "s/__PORT__/${PORT:-5000}/g" \
-  -e "s/__HOSTNAME__/$HOSTNAME/g" \
-  relay_template.yaml > relay.yaml
+cat << EOF > relay.yaml
+# this is the path that the object graph will get dumped to (in JSON-LD format),
+# you probably shouldn't change it, but you can if you want.
+db: files/relay.jsonld
+
+# Listener
+listen: 0.0.0.0
+port: ${PORT:-5000}
+
+# Note
+note: "Make a note about your instance here."
+
+# this section is for ActivityPub
+ap:
+  # this is used for generating activitypub messages, as well as instructions for
+  # linking AP identities.  it should be an SSL-enabled domain reachable by https.
+  host: '$HOSTNAME'
+  blocked_instances: []
+EOF
