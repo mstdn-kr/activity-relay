@@ -1,0 +1,26 @@
+# this is the path that the object graph will get dumped to (in JSON-LD format),
+# you probably shouldn't change it, but you can if you want.
+db: files/relay.jsonld
+
+# Listener
+listen: 0.0.0.0
+port: __PORT__
+
+# Note
+note: "Make a note about your instance here."
+
+# this section is for ActivityPub
+ap:
+  # this is used for generating activitypub messages, as well as instructions for
+  # linking AP identities.  it should be an SSL-enabled domain reachable by https.
+  host: '__HOSTNAME__'
+  blocked_instances: []
+  whitelist_enabled: true
+  whitelist:
+    - edge.twingyeo.kr
+    - planet.moe
+    - qdon.space
+    - twingyeo.kr
+    - uri.life
+    - usagicore.moe
+    - jmm.kr
