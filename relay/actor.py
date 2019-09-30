@@ -36,7 +36,7 @@ from . import app, CONFIG
 from .remote_actor import fetch_actor
 
 
-AP_CONFIG = CONFIG.get('ap', {'host': 'localhost','blocked_instances':[], 'whitelist_enabled': False, 'whitelist': []})
+AP_CONFIG = CONFIG['ap']
 CACHE_SIZE = CONFIG.get('cache-size', 16384)
 
 
