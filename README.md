@@ -69,3 +69,13 @@ This will show the available management tasks:
 
 When following remote relays, you should use the `/actor` endpoint as you would in
 Pleroma and other LitePub-compliant software.
+
+## Docker
+
+You can run ActivityRelay with docker. Edit `relay.yaml` so that the database
+location is set to `./data/relay.jsonld` and then build and run the docker
+image :
+
+    $ docker volume create activityrelay-data
+    $ docker build -t activityrelay .
+	$ docker run -d -p 8080:8080 -v activityrelay-data:/workdir/data activityrelay

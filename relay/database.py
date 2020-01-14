@@ -2,18 +2,23 @@ import asyncio
 import logging
 import urllib.parse
 import simplejson as json
+from sys import exit
 
 
 from . import CONFIG
-AP_CONFIG = CONFIG.get('ap', {'blocked_instances':[], 'whitelist_enabled': False, 'whitelist': []})
-
+AP_CONFIG = CONFIG['ap']
 
 try:
     with open(CONFIG['db']) as f:
         DATABASE = json.load(f)
-except:
+
+except FileNotFoundError:
     logging.info('No database was found, making a new one.')
     DATABASE = {}
+
+except json.decoder.JSONDecodeError:
+    logging.info('Invalid JSON in db. Exiting...')
+    exit(1)
 
 following = DATABASE.get('relay-list', [])
 for inbox in following:

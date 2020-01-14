@@ -99,3 +99,6 @@ viera.jsonld
 
 relay.jsonld
 relay.yaml
+
+# config file
+relay.yaml
