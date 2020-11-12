@@ -55,6 +55,17 @@ def sign_signing_string(sigstring, key):
     return SIGSTRING_CACHE[sigstring]
 
 
+def generate_body_digest(body):
+    bodyhash = SIGSTRING_CACHE.get(body)
+
+    if not bodyhash:
+        h = SHA256.new(body.encode('utf-8'))
+        bodyhash = base64.b64encode(h.digest()).decode('utf-8')
+        SIGSTRING_CACHE[body] = bodyhash
+
+    return bodyhash
+
+
 def sign_headers(headers, key, key_id):
     headers = {x.lower(): y for x, y in headers.items()}
     used_headers = headers.keys()
