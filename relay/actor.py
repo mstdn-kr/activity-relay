@@ -6,12 +6,17 @@ import uuid
 import re
 import simplejson as json
 import cgi
+import datetime
+
 from urllib.parse import urlsplit
 from Crypto.PublicKey import RSA
+from cachetools import LFUCache
+
+from . import app, CONFIG
 from .database import DATABASE
 from .http_debug import http_debug
-
-from cachetools import LFUCache
+from .remote_actor import fetch_actor
+from .http_signatures import sign_headers, generate_body_digest
 
 
 # generate actor keys if not present
@@ -29,18 +34,11 @@ if "actorKeys" not in DATABASE:
 
 PRIVKEY = RSA.importKey(DATABASE["actorKeys"]["privateKey"])
 PUBKEY = PRIVKEY.publickey()
-
-sem = asyncio.Semaphore(500)
-
-from . import app, CONFIG
-from .remote_actor import fetch_actor
-
-
 AP_CONFIG = CONFIG['ap']
 CACHE_SIZE = CONFIG.get('cache-size', 16384)
-
-
 CACHE = LFUCache(CACHE_SIZE)
+
+sem = asyncio.Semaphore(500)
 
 
 async def actor(request):
@@ -68,11 +66,6 @@ async def actor(request):
 
 
 app.router.add_get('/actor', actor)
-
-
-from .http_signatures import sign_headers
-
-
 get_actor_inbox = lambda actor: actor.get('endpoints', {}).get('sharedInbox', actor['inbox'])
 
 
@@ -86,10 +79,14 @@ async def push_message_to_actor(actor, message, our_key_id):
         '(request-target)': 'post {}'.format(url.path),
         'Content-Length': str(len(data)),
         'Content-Type': 'application/activity+json',
-        'User-Agent': 'ActivityRelay'
+        'User-Agent': 'ActivityRelay',
+        'Host': url.netloc,
+        'Digest': 'SHA-256={}'.format(generate_body_digest(data)),
+        'Date': datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
     }
     headers['signature'] = sign_headers(headers, PRIVKEY, our_key_id)
     headers.pop('(request-target)')
+    headers.pop('Host')
 
     logging.debug('%r >> %r', inbox, message)
 
