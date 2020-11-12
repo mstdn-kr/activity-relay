@@ -242,8 +242,7 @@ async def handle_follow(actor, data, request):
         following += [inbox]
         DATABASE['relay-list'] = following
 
-        if data['object'].endswith('/actor'):
-            asyncio.ensure_future(follow_remote_actor(actor['id']))
+        asyncio.ensure_future(follow_remote_actor(actor['id']))
 
     message = {
         "@context": "https://www.w3.org/ns/activitystreams",
@@ -253,10 +252,10 @@ async def handle_follow(actor, data, request):
 
         # this is wrong per litepub, but mastodon < 2.4 is not compliant with that profile.
         "object": {
-             "type": "Follow",
-             "id": data["id"],
-             "object": "https://{}/actor".format(request.host),
-             "actor": actor["id"]
+            "type": "Follow",
+            "id": data["id"],
+            "object": "https://{}/actor".format(request.host),
+            "actor": actor["id"]
         },
 
         "id": "https://{}/activities/{}".format(request.host, uuid.uuid4()),
@@ -278,8 +277,7 @@ async def handle_undo(actor, data, request):
             following.remove(inbox)
             DATABASE['relay-list'] = following
 
-        if child['object'].endswith('/actor'):
-            await unfollow_remote_actor(actor['id'])
+        await unfollow_remote_actor(actor['id'])
 
 
 processors = {
