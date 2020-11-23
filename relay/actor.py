@@ -62,7 +62,7 @@ async def actor(request):
         "preferredUsername": "relay",
         "url": "https://{}/actor".format(request.host)
     }
-    return aiohttp.web.json_response(data)
+    return aiohttp.web.json_response(data, content_type='application/activity+json')
 
 
 app.router.add_get('/actor', actor)
