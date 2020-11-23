@@ -24,11 +24,11 @@ following = DATABASE.get('relay-list', [])
 for inbox in following:
     if urllib.parse.urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
         following.remove(inbox)
-        DATABASE['relay-list'] = following
 
     elif AP_CONFIG['whitelist_enabled'] is True and urllib.parse.urlsplit(inbox).hostname not in AP_CONFIG['whitelist']:
         following.remove(inbox)
-        DATABASE['relay-list'] = following
+
+DATABASE['relay-list'] = following
 
 if 'actors' in DATABASE:
     DATABASE.pop('actors')
