@@ -21,3 +21,4 @@ ap:
   whitelist:
   - 'good-instance.example.com'
   - 'another.good-instance.example.com'
+  block_relays: false

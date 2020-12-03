@@ -23,6 +23,7 @@ def load_config():
             'port': int(yaml_file.get('port', 8080)),
             'note': yaml_file.get('note', 'Make a note about your instance here.'),
             'ap': {
+                'block_relays': yaml_file['ap'].get('block_relays', False),
                 'blocked_instances': yaml_file['ap'].get('blocked_instances', []),
                 'host': yaml_file['ap'].get('host', 'localhost'),
                 'whitelist': yaml_file['ap'].get('whitelist', []),
