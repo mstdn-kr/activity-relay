@@ -104,8 +104,25 @@ async def push_message_to_actor(actor, message, our_key_id):
 
 
 async def fetch_nodeinfo(domain):
-    nodeinfo_data = await fetch_actor(f'https://{domain}/nodeinfo/2.0.json')
+    headers = {'Accept': 'application/activity+json'}
+    nodeinfo_url = None
+
+    wk_nodeinfo = await fetch_actor(f'https://{domain}/.well-known/nodeinfo', headers=headers)
+
+    if not wk_nodeinfo:
+        return
+
+    for link in wk_nodeinfo.get('links', ''):
+        if link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/2.0':
+            nodeinfo_url = link['href']
+            break
+
+    if not nodeinfo_url:
+        return
+
+    nodeinfo_data = await fetch_actor(nodeinfo_url)
     software = nodeinfo_data.get('software')
+
     return software.get('name') if software else None
 
 
