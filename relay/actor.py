@@ -318,10 +318,10 @@ async def inbox(request):
     data = await request.json()
     instance = urlsplit(data['actor']).hostname
 
-    if AP_CONFIG['block_relays']:
+    if AP_CONFIG['blocked_software']:
         software = await fetch_nodeinfo(instance)
 
-        if software and 'relay' in software.lower():
+        if software and software.lower() in AP_CONFIG['blocked_software']:
             raise aiohttp.web.HTTPUnauthorized(body='relays have been blocked', content_type='text/plain')
 
     if 'actor' not in data or not request['validated']:
