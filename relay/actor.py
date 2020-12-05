@@ -120,7 +120,7 @@ async def fetch_nodeinfo(domain):
     if not nodeinfo_url:
         return
 
-    nodeinfo_data = await fetch_actor(nodeinfo_url)
+    nodeinfo_data = await fetch_actor(nodeinfo_url, headers=headers)
     software = nodeinfo_data.get('software')
 
     return software.get('name') if software else None
