@@ -104,7 +104,7 @@ async def push_message_to_actor(actor, message, our_key_id):
 
 
 async def fetch_nodeinfo(domain):
-    headers = {'Accept': 'application/activity+json'}
+    headers = {'Accept': 'application/json'}
     nodeinfo_url = None
 
     wk_nodeinfo = await fetch_actor(f'https://{domain}/.well-known/nodeinfo', headers=headers)
