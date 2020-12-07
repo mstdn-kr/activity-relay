@@ -6,7 +6,7 @@ idna==2.7
 idna-ssl==1.1.0
 multidict==4.3.1
 pycryptodome==3.9.4
-PyYAML==3.13
+PyYAML>=5.1
 simplejson==3.16.0
 yarl==1.2.6
 cachetools

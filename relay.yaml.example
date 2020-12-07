@@ -21,3 +21,10 @@ ap:
   whitelist:
   - 'good-instance.example.com'
   - 'another.good-instance.example.com'
+  # uncomment the lines below to prevent certain activitypub software from posting
+  # to the relay (all known relays by default). this uses the software name in nodeinfo
+  #blocked_software:
+  #- 'activityrelay'
+  #- 'aoderelay'
+  #- 'social.seattle.wa.us-relay'
+  #- 'unciarelay'

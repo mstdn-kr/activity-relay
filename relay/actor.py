@@ -103,6 +103,29 @@ async def push_message_to_actor(actor, message, our_key_id):
             logging.info('Caught %r while pushing to %r.', e, inbox)
 
 
+async def fetch_nodeinfo(domain):
+    headers = {'Accept': 'application/json'}
+    nodeinfo_url = None
+
+    wk_nodeinfo = await fetch_actor(f'https://{domain}/.well-known/nodeinfo', headers=headers)
+
+    if not wk_nodeinfo:
+        return
+
+    for link in wk_nodeinfo.get('links', ''):
+        if link['rel'] == 'http://nodeinfo.diaspora.software/ns/schema/2.0':
+            nodeinfo_url = link['href']
+            break
+
+    if not nodeinfo_url:
+        return
+
+    nodeinfo_data = await fetch_actor(nodeinfo_url, headers=headers)
+    software = nodeinfo_data.get('software')
+
+    return software.get('name') if software else None
+
+
 async def follow_remote_actor(actor_uri):
     actor = await fetch_actor(actor_uri)
     
@@ -235,6 +258,7 @@ async def handle_follow(actor, data, request):
     following = DATABASE.get('relay-list', [])
     inbox = get_actor_inbox(actor)
 
+
     if urlsplit(inbox).hostname in AP_CONFIG['blocked_instances']:
         return
 
@@ -293,6 +317,12 @@ processors = {
 async def inbox(request):
     data = await request.json()
     instance = urlsplit(data['actor']).hostname
+
+    if AP_CONFIG['blocked_software']:
+        software = await fetch_nodeinfo(instance)
+
+        if software and software.lower() in AP_CONFIG['blocked_software']:
+            raise aiohttp.web.HTTPUnauthorized(body='relays have been blocked', content_type='text/plain')
 
     if 'actor' not in data or not request['validated']:
         raise aiohttp.web.HTTPUnauthorized(body='access denied', content_type='text/plain')

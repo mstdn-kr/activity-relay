@@ -9,9 +9,13 @@ import yaml
 
 def load_config():
     with open('relay.yaml') as f:
-        yaml_file = yaml.load(f)
-        whitelist = yaml_file['ap'].get('whitelist', [])
-        blocked = yaml_file['ap'].get('blocked_instances', [])
+        options = {}
+
+        ## Prevent a warning message for pyyaml 5.1+
+        if getattr(yaml, 'FullLoader', None):
+            options['Loader'] = yaml.FullLoader
+
+        yaml_file = yaml.load(f, **options)
 
         config = {
             'db': yaml_file.get('db', 'relay.jsonld'),
@@ -19,9 +23,10 @@ def load_config():
             'port': int(yaml_file.get('port', 8080)),
             'note': yaml_file.get('note', 'Make a note about your instance here.'),
             'ap': {
-                'blocked_instances': [] if blocked is None else blocked,
+                'blocked_software': [v.lower() for v in yaml_file['ap'].get('blocked_software', [])],
+                'blocked_instances': yaml_file['ap'].get('blocked_instances', []),
                 'host': yaml_file['ap'].get('host', 'localhost'),
-                'whitelist': [] if whitelist is None else whitelist,
+                'whitelist': yaml_file['ap'].get('whitelist', []),
                 'whitelist_enabled': yaml_file['ap'].get('whitelist_enabled', False)
             }
         }
@@ -29,7 +34,6 @@ def load_config():
 
 
 CONFIG = load_config()
-
 
 from .http_signatures import http_signatures_middleware
 
