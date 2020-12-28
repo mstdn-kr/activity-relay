@@ -12,7 +12,7 @@ in this package as the `LICENSE` file.
 
 ## Setup
 
-You need at least Python 3.5 (3.5.2 or newer recommended) to make use of this software.
+You need at least Python 3.6 (latest version of 3.x recommended) to make use of this software.
 It simply will not run on older Python versions.
 
 Install the dependencies as you normally would (`pip3 install -r requirements.txt`).
