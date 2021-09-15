@@ -88,13 +88,11 @@ async def fetch_actor_key(actor):
     if not actor_data:
         return None
 
-    if 'publicKey' not in actor_data:
-        return None
+    try:
+        return RSA.importKey(actor_data['publicKey']['publicKeyPem'])
 
-    if 'publicKeyPem' not in actor_data['publicKey']:
-        return None
-
-    return RSA.importKey(actor_data['publicKey']['publicKeyPem'])
+    except Exception as e:
+        logging.debug(f'Exception occured while fetching actor key: {e}')
 
 
 async def validate(actor, request):
