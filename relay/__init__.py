@@ -5,10 +5,17 @@ import asyncio
 import aiohttp
 import aiohttp.web
 import yaml
+import argparse
 
+parser = argparse.ArgumentParser(
+    description="A generic LitePub relay (works with all LitePub consumers and Mastodon).",
+    prog="python -m relay")
+parser.add_argument("-c", "--config", type=str, default="relay.yaml",
+    metavar="<path>", help="the path to your config file")
+args = parser.parse_args()
 
 def load_config():
-    with open('relay.yaml') as f:
+    with open(args.config) as f:
         options = {}
 
         ## Prevent a warning message for pyyaml 5.1+
