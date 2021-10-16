@@ -15,7 +15,7 @@ in this package as the `LICENSE` file.
 You need at least Python 3.6 (latest version of 3.x recommended) to make use of this software.
 It simply will not run on older Python versions.
 
-Install the dependencies as you normally would (`pip3 install -r requirements.txt`).
+Download the project and install with pip (`pip3 install .`).
 
 Copy `relay.yaml.example` to `relay.yaml` and edit it as appropriate:
 
