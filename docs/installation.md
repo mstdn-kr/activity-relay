@@ -24,14 +24,14 @@ Or from a cloned git repo.
 Once finished, you can set up the relay via the setup command. It will ask a few questions to fill
 out config options for your relay
 
-	activityrelay setup
+	~/.local/bin/activityrelay setup
 
 Finally start it up with the run command.
 
-	activityrelay run
+	~/.local/bin/activityrelay run
 
 Note: Pipx requires python 3.7+. If your distro doesn't have a compatible version of python, it can
-be installed via 
+be installed via [pyenv](https://github.com/pyenv/pyenv).
 
 
 ## Pip
@@ -47,11 +47,11 @@ or a cloned git repo.
 
 Now run the configuration wizard
 
-	activityrelay setup
+	python3 -m relay setup
 
 And start the relay when finished
 
-	activityrelay run
+	python3 -m relay run
 
 
 ## Docker

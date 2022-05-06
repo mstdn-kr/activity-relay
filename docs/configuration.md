@@ -75,7 +75,7 @@ the block list, it will be removed from the inbox list on startup.
 ### Blocked Software
 
 A list of ActivityPub software which cannot follow your relay. This list is empty by default, but
-setting this to the above list will block all other relays and prevent relay chains
+setting this to the below list will block all other relays and prevent relay chains
 
 	blocked_software:
 	- activityrelay

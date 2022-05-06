@@ -5,6 +5,10 @@ any category or command to get help on that specific option (ex. `activityrelay 
 
 Note: Unless specified, it is recommended to run any commands while the relay is shutdown.
 
+Note 2: `activityrelay` is only available via pip or pipx if `~/.local/bin` is in `$PATH`. If it
+isn't, use `python3 -m relay` if installed via pip or `~/.local/bin/activityrelay` if installed
+via pipx
+
 
 ## Run
 
