@@ -9,10 +9,9 @@ import platform
 from aiohttp.web import AppRunner, TCPSite
 from cachetools import LRUCache
 
-from . import app, views, __version__
+from . import app, misc, views, __version__
 from .config import DotDict, RelayConfig, relay_software_names
 from .database import RelayDatabase
-from .misc import check_open_port, follow_remote_actor, unfollow_remote_actor
 
 
 @click.group('cli', context_settings={'show_default': True}, invoke_without_command=True)
@@ -77,8 +76,18 @@ def cli_inbox_follow(actor):
 	if database.get_inbox(actor):
 		return click.echo(f'Error: Already following actor: {actor}')
 
-	run_in_loop(follow_remote_actor, actor)
-	click.echo(f'Sent follow message to: {actor}')
+	actor_data = run_in_loop(misc.request, actor, sign_headers=True)
+
+	if not actor_data:
+		return click.echo(f'Error: Failed to fetch actor: {actor}')
+
+	inbox = misc.get_actor_inbox(actor_data)
+
+	database.add_inbox(inbox)
+	database.save()
+
+	run_in_loop(misc.follow_remote_actor, actor)
+	click.echo(f'Sent follow message to actor: {actor}')
 
 
 @cli_inbox.command('unfollow')
@@ -94,7 +103,10 @@ def cli_inbox_unfollow(actor):
 	if not database.get_inbox(actor):
 		return click.echo(f'Error: Not following actor: {actor}')
 
-	run_in_loop(unfollow_remote_actor, actor)
+	database.del_inbox(actor)
+	database.save()
+
+	run_in_loop(misc.unfollow_remote_actor, actor)
 	click.echo(f'Sent unfollow message to: {actor}')
 
 
@@ -370,7 +382,7 @@ def relay_run():
 			click.echo('Warning: PyCrypto is old and should be replaced with pycryptodome')
 			return click.echo(pip_command)
 
-	if not check_open_port(config.listen, config.port):
+	if not misc.check_open_port(config.listen, config.port):
 		return click.echo(f'Error: A server is already running on port {config.port}')
 
 	# web pages

@@ -109,13 +109,15 @@ class RelayDatabase:
 
 	def add_inbox(self, inbox):
 		assert inbox.startswith('https')
-		assert inbox not in self.inboxes
+		assert not self.get_inbox(inbox)
 
 		self.data['relay-list'].append(inbox)
 
 
-	def del_inbox(self, inbox):
-		if inbox not in self.inboxes:
-			raise KeyError(inbox)
+	def del_inbox(self, inbox_url):
+		inbox = self.get_inbox(inbox_url)
+
+		if not inbox:
+			raise KeyError(inbox_url)
 
 		self.data['relay-list'].remove(inbox)

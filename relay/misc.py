@@ -160,7 +160,6 @@ async def fetch_nodeinfo(domain):
 
 async def follow_remote_actor(actor_uri):
 	config = app['config']
-	database = app['database']
 
 	actor = await request(actor_uri)
 	inbox = get_actor_inbox(actor)
@@ -185,7 +184,6 @@ async def follow_remote_actor(actor_uri):
 
 async def unfollow_remote_actor(actor_uri):
 	config = app['config']
-	database = app['database']
 
 	actor = await request(actor_uri)
 
