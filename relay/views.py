@@ -117,7 +117,7 @@ async def inbox(request):
 
 	## reject if software used by actor is banned
 	if len(config.blocked_software):
-		software = await fetch_nodeinfo(actor_domain)
+		software = await misc.fetch_nodeinfo(actor_domain)
 
 		if config.is_banned_software(software):
 			logging.verbose(f'Rejected actor for using specific software: {software}')

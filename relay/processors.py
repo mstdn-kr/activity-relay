@@ -47,7 +47,7 @@ async def handle_forward(actor, data, request):
 	logging.verbose(f'Forwarding post from {actor["id"]}')
 	logging.debug(f'>> Relay {data}')
 
-	inboxes = misc.distill_inboxes(actor['id'], object_id)
+	inboxes = misc.distill_inboxes(actor, object_id)
 
 	futures = [misc.request(inbox, data=data) for inbox in inboxes]
 	asyncio.ensure_future(asyncio.gather(*futures))
