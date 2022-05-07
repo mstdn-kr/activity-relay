@@ -9,10 +9,9 @@ import platform
 from aiohttp.web import AppRunner, TCPSite
 from cachetools import LRUCache
 
-from . import app, views, __version__
+from . import app, misc, views, __version__
 from .config import DotDict, RelayConfig, relay_software_names
 from .database import RelayDatabase
-from .misc import check_open_port, follow_remote_actor, unfollow_remote_actor
 
 
 @click.group('cli', context_settings={'show_default': True}, invoke_without_command=True)
@@ -65,7 +64,30 @@ def cli_inbox_list():
 def cli_inbox_follow(actor):
 	'Follow an actor (Relay must be running)'
 
-	run_in_loop(handle_follow_actor, actor)
+	config = app['config']
+	database = app['database']
+
+	if config.is_banned(actor):
+		return click.echo(f'Error: Refusing to follow banned actor: {actor}')
+
+	if not actor.startswith('http'):
+		actor = f'https://{actor}/actor'
+
+	if database.get_inbox(actor):
+		return click.echo(f'Error: Already following actor: {actor}')
+
+	actor_data = run_in_loop(misc.request, actor, sign_headers=True)
+
+	if not actor_data:
+		return click.echo(f'Error: Failed to fetch actor: {actor}')
+
+	inbox = misc.get_actor_inbox(actor_data)
+
+	database.add_inbox(inbox)
+	database.save()
+
+	run_in_loop(misc.follow_remote_actor, actor)
+	click.echo(f'Sent follow message to actor: {actor}')
 
 
 @cli_inbox.command('unfollow')
@@ -73,7 +95,19 @@ def cli_inbox_follow(actor):
 def cli_inbox_unfollow(actor):
 	'Unfollow an actor (Relay must be running)'
 
-	run_in_loop(handle_unfollow_actor(actor))
+	database = app['database']
+
+	if not actor.startswith('http'):
+		actor = f'https://{actor}/actor'
+
+	if not database.get_inbox(actor):
+		return click.echo(f'Error: Not following actor: {actor}')
+
+	database.del_inbox(actor)
+	database.save()
+
+	run_in_loop(misc.unfollow_remote_actor, actor)
+	click.echo(f'Sent unfollow message to: {actor}')
 
 
 @cli_inbox.command('add')
@@ -348,7 +382,7 @@ def relay_run():
 			click.echo('Warning: PyCrypto is old and should be replaced with pycryptodome')
 			return click.echo(pip_command)
 
-	if not check_open_port(config.listen, config.port):
+	if not misc.check_open_port(config.listen, config.port):
 		return click.echo(f'Error: A server is already running on port {config.port}')
 
 	# web pages
@@ -374,32 +408,6 @@ def relay_run():
 def run_in_loop(func, *args, **kwargs):
 	loop = asyncio.new_event_loop()
 	return loop.run_until_complete(func(*args, **kwargs))
-
-
-async def handle_follow_actor(app, target):
-	config = app['config']
-
-	if not target.startswith('http'):
-		target = f'https://{target}/actor'
-
-	if config.is_banned(target):
-		return click.echo(f'Error: Refusing to follow banned actor: {target}')
-
-	await follow_remote_actor(target)
-	click.echo(f'Sent follow message to: {target}')
-
-
-async def handle_unfollow_actor(app, target):
-	database = app['database']
-
-	if not target.startswith('http'):
-		target = f'https://{target}/actor'
-
-	if not database.get_inbox(target):
-		return click.echo(f'Error: Not following actor: {target}')
-
-	await unfollow_remote_actor(target)
-	click.echo(f'Sent unfollow message to: {target}')
 
 
 async def handle_start_webserver():
