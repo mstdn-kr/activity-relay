@@ -12,9 +12,10 @@ from .processors import run_processor
 
 try:
 	commit_label = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode('ascii')
+	version = f'{__version__} {commit_label}'
 
 except:
-	commit_label = '???'
+	version = __version__
 
 
 async def home(request):
@@ -169,7 +170,7 @@ async def nodeinfo_2_0(request):
 		},
 		'software': {
 			'name': 'activityrelay',
-			'version': f'{__version__} {commit_label}'
+			'version': version
 		},
 		'usage': {
 			'localPosts': 0,
