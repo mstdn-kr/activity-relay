@@ -58,7 +58,7 @@ def create_signature_header(headers):
 
 
 def distill_object_id(activity):
-	logging.debug('>> determining object ID for', activity['object'])
+	logging.debug(f'>> determining object ID for {activity["object"]}')
 
 	try:
 		return activity['object']['id']
