@@ -136,7 +136,7 @@ async def fetch_actor_key(actor):
 async def fetch_nodeinfo(domain):
 	nodeinfo_url = None
 
-	wk_nodeinfo = await request(f'https://{domain}/.well-known/nodeinfo', sign_headers=False)
+	wk_nodeinfo = await request(f'https://{domain}/.well-known/nodeinfo', sign_headers=False, activity=False)
 
 	if not wk_nodeinfo:
 		return
@@ -149,7 +149,7 @@ async def fetch_nodeinfo(domain):
 	if not nodeinfo_url:
 		return
 
-	nodeinfo_data = await request(nodeinfo_url, sign_headers=False)
+	nodeinfo_data = await request(nodeinfo_url, sign_headers=False, activity=False)
 
 	try:
 		return nodeinfo_data['software']['name']
@@ -211,7 +211,7 @@ async def unfollow_remote_actor(actor_uri):
 	await request(inbox, message)
 
 
-async def request(uri, data=None, force=False, sign_headers=True):
+async def request(uri, data=None, force=False, sign_headers=True, activity=True):
 	## If a get request and not force, try to use the cache first
 	if not data and not force:
 		try:
@@ -223,14 +223,15 @@ async def request(uri, data=None, force=False, sign_headers=True):
 	url = urlparse(uri)
 	method = 'POST' if data else 'GET'
 	headers = {'User-Agent': 'ActivityRelay'}
+	mimetype = 'application/activity+json' if activity else 'application/json'
 
 	## Set the content type for a POST
 	if data and 'Content-Type' not in headers:
-		headers['Content-Type'] = 'application/activity+json'
+		headers['Content-Type'] = mimetype
 
 	## Set the accepted content type for a GET
 	elif not data and 'Accept' not in headers:
-		headers['Accept'] = 'application/activity+json'
+		headers['Accept'] = mimetype
 
 	if sign_headers:
 		signing_headers = {
