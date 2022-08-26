@@ -118,5 +118,8 @@ processors = {
 
 
 async def run_processor(request, data, actor):
+	if data['type'] not in processors:
+		return
+
 	logging.verbose(f'New activity from actor: {actor["id"]} {data["type"]}')
 	return await processors[data['type']](actor, data, request)
